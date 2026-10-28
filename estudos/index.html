@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="pt-BR" class="js-off">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estudo na Rotina | Planilha de estudos automática para rotina corrida</title>
+<meta name="description" content="Trabalha, estuda, cuida da casa e ainda quer passar no concurso ou fechar a faculdade? A planilha Estudo na Rotina encontra os horários que você já tem e diz exatamente o que estudar em cada um.">
+<meta property="og:title" content="Estudo na Rotina — o plano de estudos que cabe na sua semana">
+<meta property="og:description" content="Você marca sua rotina. A planilha encaixa as matérias, agenda as revisões e mostra seu progresso. Excel e Google Sheets.">
+<meta property="og:image" content="https://planilhasite.vercel.app/estudos/img/og.jpg">
+<meta property="og:url" content="https://planilhasite.vercel.app/estudos">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#1B2A4A">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%231B2A4A'/><rect x='14' y='16' width='36' height='8' rx='3' fill='%23FF6B4A'/><rect x='14' y='29' width='24' height='8' rx='3' fill='%23FFC93C'/><rect x='14' y='42' width='30' height='8' rx='3' fill='%232EC4B6'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,800;1,9..144,500;1,9..144,700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1B2A4A; --ink2:#273A63; --coral:#FF6B4A; --coral-d:#E8502F; --coral-l:#FFE3DA;
+  --sun:#FFC93C; --sun-l:#FFF1C4; --mint:#2EC4B6; --mint-l:#D5F4F0; --lilac:#C9B8F0;
+  --paper:#FFF8EE; --paper2:#F7EEDF; --line:rgba(27,42,74,.12); --muted:#56627A;
+  --serif:"Fraunces",Georgia,serif; --sans:"DM Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif; --hand:"Caveat",cursive;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+html,body{overflow-x:hidden}
+@supports (overflow:clip){html,body{overflow-x:clip}}
+body{font-family:var(--sans);color:var(--ink);background:var(--paper);line-height:1.6;-webkit-font-smoothing:antialiased}
+img{max-width:100%;height:auto;display:block}
+a{color:inherit}
+.wrap{max-width:1160px;margin:0 auto;padding:0 20px}
+.grid-paper{background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:32px 32px;background-position:-1px -1px}
+h1,h2,h3{font-family:var(--serif);letter-spacing:-.02em;line-height:1.05}
+h2{font-size:clamp(34px,5vw,58px);font-weight:800}
+h2 em,h1 em{font-style:italic;font-weight:500;color:var(--coral)}
+.kicker{font-family:var(--hand);font-size:30px;color:var(--coral);line-height:1;display:inline-block;transform:rotate(-2deg);margin-bottom:10px}
+.lead{font-size:clamp(17px,2vw,20px);color:var(--muted);max-width:640px;margin-top:16px}
+section{padding:110px 0;position:relative}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;background:var(--coral);color:#fff;text-decoration:none;font-weight:800;font-size:18px;padding:19px 30px;border-radius:14px;box-shadow:0 5px 0 var(--coral-d),0 18px 30px -10px rgba(255,107,74,.6);transition:transform .15s,box-shadow .15s;position:relative}
+.btn:hover{transform:translateY(-2px);box-shadow:0 7px 0 var(--coral-d),0 24px 34px -10px rgba(255,107,74,.65)}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--coral-d)}
+.btn svg{width:20px;height:20px;transition:transform .2s}
+.btn:hover svg{transform:translateX(4px)}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)}
+.btn.ghost:hover{background:var(--ink);color:#fff}
+
+/* header */
+.top{position:sticky;top:0;z-index:50;background:rgba(255,248,238,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid transparent;transition:border-color .2s}
+.top.scrolled{border-color:var(--line)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;height:68px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-weight:800;font-size:21px;text-decoration:none;letter-spacing:-.02em}
+.logo i{display:grid;gap:3px;width:26px}
+.logo i b{height:6px;border-radius:2px;background:var(--coral)}.logo i b:nth-child(2){width:65%;background:var(--sun)}.logo i b:nth-child(3){width:82%;background:var(--mint)}
+.logo em{font-style:italic;font-weight:500;color:var(--coral)}
+.top nav{display:flex;gap:28px;font-weight:600;font-size:15px}
+.top nav a{text-decoration:none;opacity:.75}.top nav a:hover{opacity:1}
+.top .btn{font-size:15px;padding:11px 18px;border-radius:10px;box-shadow:0 3px 0 var(--coral-d)}
+
+/* hero */
+.hero{padding:70px 0 120px;overflow:hidden}
+.hero .wrap{display:grid;grid-template-columns:1fr 1.05fr;gap:40px;align-items:center}
+.hero h1{font-size:clamp(44px,6.2vw,80px);font-weight:800;line-height:.95;letter-spacing:-.035em}
+.hero h1 .u{position:relative;white-space:nowrap}
+.hero h1 .u svg{position:absolute;left:-2%;bottom:-.14em;width:104%;height:.32em;overflow:visible}
+.hero h1 .u path{stroke:var(--sun);stroke-width:9;fill:none;stroke-linecap:round;stroke-dasharray:400;stroke-dashoffset:400;animation:draw 1s .5s ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.hero p.sub{font-size:clamp(18px,2.1vw,21px);color:var(--muted);max-width:540px;margin:34px 0 34px}
+.hero p.sub b{color:var(--ink)}
+.cta-row{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.micro{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:22px;font-size:14px;font-weight:600;color:var(--muted)}
+.micro span{display:flex;align-items:center;gap:7px}
+.micro svg{width:16px;height:16px;color:var(--mint)}
+.stage{position:relative;height:560px}
+.win{position:absolute;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 40px 70px -20px rgba(27,42,74,.35),0 0 0 1px rgba(27,42,74,.08)}
+.win .bar{height:30px;background:var(--paper2);display:flex;align-items:center;gap:7px;padding:0 12px;font-size:12px;font-weight:700;color:#8a7d69}
+.win .bar i{width:10px;height:10px;border-radius:50%;background:var(--coral)}.win .bar i:nth-child(2){background:var(--sun)}.win .bar i:nth-child(3){background:var(--mint);margin-right:6px}
+.stage .w1{width:94%;right:-6%;top:10px;transform:rotate(-2.5deg)}
+.stage .w2{width:58%;left:-4%;bottom:0;transform:rotate(2deg)}
+.note{position:absolute;font-family:var(--hand);font-weight:700;line-height:1.05;padding:14px 18px;box-shadow:0 14px 24px -8px rgba(27,42,74,.35);z-index:3}
+.note.y{background:var(--sun)}.note.w{background:#fff;border-top:8px solid var(--mint)}
+.stage .n1{right:-2%;top:-26px;font-size:28px;transform:rotate(5deg)}
+.stage .n2{right:8%;bottom:30px;font-size:27px;transform:rotate(-4deg)}
+.found{position:absolute;left:40%;top:46%;z-index:4;background:var(--ink);color:#fff;border-radius:16px;padding:14px 18px;display:flex;gap:12px;align-items:center;box-shadow:0 20px 40px -10px rgba(27,42,74,.5);animation:bob 4s ease-in-out infinite}
+.found b{font-family:var(--serif);font-size:34px;color:var(--sun);line-height:1}
+.found span{font-size:13px;line-height:1.25;font-weight:600;opacity:.85}
+@keyframes bob{50%{transform:translateY(-8px)}}
+.float-in{opacity:0;transform:translateY(30px);animation:fin .9s cubic-bezier(.2,.7,.2,1) forwards}
+@keyframes fin{to{opacity:1;transform:none}}
+
+/* faixa */
+.tick-wrap{overflow:hidden;margin-top:-70px;padding:40px 0;position:relative;z-index:2}
+.ticker{background:var(--ink);color:#fff;overflow:hidden;padding:20px 0;transform:rotate(-1.2deg);width:104%;margin-left:-2%}
+.ticker .track{display:flex;gap:44px;width:max-content;animation:tick 32s linear infinite;font-family:var(--serif);font-size:26px;font-style:italic}
+.ticker span{display:flex;align-items:center;gap:44px;white-space:nowrap}
+.ticker span::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--coral)}
+@keyframes tick{to{transform:translateX(-50%)}}
+
+/* problema */
+.problem .wrap{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start}
+.excuses{list-style:none;display:grid;gap:18px;margin-top:6px}
+.excuses li{background:#fff;border-radius:18px;padding:24px 26px;border:1px solid var(--line);box-shadow:0 1px 0 var(--line)}
+.excuses s{font-family:var(--hand);font-size:32px;font-weight:700;color:#9AA3B5;text-decoration:none;position:relative;display:inline-block}
+.excuses s::after{content:"";position:absolute;left:-4px;right:-4px;top:55%;height:3px;background:var(--coral);border-radius:3px;transform:scaleX(0);transform-origin:left;transition:transform .6s .2s ease}
+.excuses li.in s::after{transform:scaleX(1)}
+.excuses p{margin-top:6px;font-size:17px}
+.excuses p b{color:var(--coral-d)}
+
+/* simulador */
+.sim{background:var(--ink);color:#fff;border-radius:36px;margin:0 14px;overflow:hidden}
+.sim h2{color:#fff}.sim .lead{color:#B8C3DA}
+.sim .kicker{color:var(--sun)}
+.sim-grid{display:grid;grid-template-columns:380px 1fr;gap:40px;margin-top:50px;align-items:start}
+.panel{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:26px}
+.field{margin-bottom:22px}
+.field label{display:flex;justify-content:space-between;font-weight:700;font-size:15px;margin-bottom:10px}
+.field label output{font-family:var(--serif);color:var(--sun);font-size:18px}
+input[type=range]{width:100%;accent-color:var(--coral);height:28px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{flex:1;min-width:42px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#fff;border-radius:10px;padding:9px 6px;font:700 14px var(--sans);cursor:pointer;transition:background .15s}
+.seg button[aria-pressed=true]{background:var(--coral);border-color:var(--coral)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 8px 6px 12px;font-weight:700;font-size:13px;color:var(--ink)}
+.chip button{border:0;background:rgba(27,42,74,.15);width:20px;height:20px;border-radius:50%;cursor:pointer;color:var(--ink);font-weight:800;line-height:1}
+.add{display:flex;gap:8px}
+.add input{flex:1;min-width:0;background:#fff;border:0;border-radius:10px;padding:11px 12px;font:500 15px var(--sans);color:var(--ink)}
+.add button{background:var(--sun);border:0;border-radius:10px;padding:0 16px;font:800 15px var(--sans);color:var(--ink);cursor:pointer}
+.result{background:var(--paper);color:var(--ink);border-radius:22px;padding:24px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.stat{background:#fff;border-radius:14px;padding:14px 16px;border:1px solid var(--line)}
+.stat b{display:block;font-family:var(--serif);font-size:clamp(26px,3.4vw,38px);line-height:1;font-weight:800}
+.stat span{font-size:12.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.stat.c b{color:var(--coral)}.stat.s b{color:#C48A00}.stat.m b{color:#0E9F8E}
+.week{display:grid;grid-template-columns:38px repeat(7,1fr);gap:3px;font-size:11px;position:relative}
+.week .h{font-weight:800;text-align:center;padding-bottom:4px;color:var(--muted)}
+.week .t{color:#98A1B3;font-weight:700;font-size:10px;text-align:right;padding-right:4px;line-height:12px}
+.cell{height:12px;border-radius:3px;background:#EFE7D9;transition:background .35s,transform .15s}
+.cell:hover{transform:scale(1.25);position:relative;z-index:2}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:16px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:3px}
+.tip{position:fixed;pointer-events:none;background:var(--ink);color:#fff;padding:7px 10px;border-radius:8px;font-size:12.5px;font-weight:700;opacity:0;transition:opacity .12s;z-index:90;white-space:nowrap}
+.sim-cta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:20px;padding-top:20px;border-top:1px dashed var(--line)}
+.sim-cta p{flex:1;min-width:220px;font-size:15px;color:var(--muted)}
+.sim-cta p b{color:var(--ink)}
+
+/* passos */
+.steps{display:grid;gap:110px;margin-top:70px}
+.step{display:grid;grid-template-columns:.85fr 1.15fr;gap:60px;align-items:center}
+.step.rev .txt{order:2}
+.num{font-family:var(--serif);font-style:italic;font-size:120px;line-height:.8;color:transparent;-webkit-text-stroke:2px var(--coral);font-weight:700}
+.step h3{font-size:clamp(28px,3.4vw,40px);font-weight:800;margin:14px 0 12px}
+.step p{color:var(--muted);font-size:17.5px}
+.step ul{list-style:none;margin-top:20px;display:grid;gap:10px}
+.step li{display:flex;gap:12px;font-weight:600}
+.step li::before{content:"";flex:none;width:22px;height:22px;margin-top:2px;border-radius:7px;background:var(--mint-l) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230E9F8E' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E") center/14px no-repeat}
+.shot{position:relative}
+.shot .win{position:relative}
+.shot .note{font-size:25px}
+
+/* revisões */
+.memory{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.memory .wrap{display:grid;grid-template-columns:1fr 1.1fr;gap:60px;align-items:center}
+.curve{background:var(--paper);border-radius:24px;padding:26px;border:1px solid var(--line)}
+.curve svg{width:100%;height:auto;overflow:visible}
+.curve .lbl{font:700 12px var(--sans);fill:var(--muted)}
+.curve .forget{stroke:#C5CBD6;stroke-width:3;fill:none;stroke-dasharray:6 7}
+.curve .keep{stroke:var(--coral);stroke-width:4;fill:none;stroke-linecap:round;stroke-dasharray:1400;stroke-dashoffset:1400;transition:stroke-dashoffset 2.4s ease}
+.curve.in .keep{stroke-dashoffset:0}
+.curve .dot{fill:var(--sun);stroke:var(--ink);stroke-width:2;opacity:0;transition:opacity .4s}
+.curve.in .dot{opacity:1}
+.curve.in .dot:nth-of-type(2){transition-delay:.8s}.curve.in .dot:nth-of-type(3){transition-delay:1.4s}.curve.in .dot:nth-of-type(4){transition-delay:2s}
+.pills{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+.pills span{background:var(--sun-l);border:1px solid #F0D27A;border-radius:999px;padding:8px 14px;font-weight:700;font-size:14px}
+
+/* abas */
+.tabs-wrap{margin-top:50px}
+.tablist{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:26px}
+.tablist button{border:1px solid var(--line);background:#fff;color:var(--ink);font:700 15px var(--sans);padding:11px 18px;border-radius:999px;cursor:pointer;transition:all .15s}
+.tablist button:hover{border-color:var(--ink)}
+.tablist button[aria-selected=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tabpanel{display:grid;grid-template-columns:1.6fr 1fr;gap:34px;align-items:center}
+.tabpanel .win{position:relative}
+.tabpanel img{transition:opacity .25s}
+.tabpanel h3{font-size:32px;font-weight:800;margin-bottom:10px}
+.tabpanel p{color:var(--muted);font-size:17px}
+
+/* para quem */
+.who{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:50px}
+.pcard{background:#fff;border-radius:22px;padding:26px 22px;border:1px solid var(--line);transition:transform .2s,box-shadow .2s;position:relative;overflow:hidden}
+.pcard:hover{transform:translateY(-6px) rotate(-.6deg);box-shadow:0 24px 40px -18px rgba(27,42,74,.3)}
+.pcard .bar{height:8px;border-radius:4px;width:44px;margin-bottom:18px}
+.pcard h3{font-size:22px;font-weight:800;margin-bottom:8px}
+.pcard p{color:var(--muted);font-size:15.5px}
+.pcard .q{font-family:var(--hand);font-size:24px;line-height:1.1;margin-top:14px;color:var(--ink)}
+
+/* oferta */
+.offer .card{max-width:980px;margin:0 auto;background:#fff;border-radius:32px;box-shadow:0 50px 80px -40px rgba(27,42,74,.45),0 0 0 1px var(--line);display:grid;grid-template-columns:1fr 1.1fr;overflow:hidden}
+.offer .left{background:var(--paper2);padding:34px;display:flex;align-items:center;justify-content:center}
+.offer .left img{border-radius:18px;box-shadow:0 26px 40px -18px rgba(27,42,74,.45);transform:rotate(-2deg)}
+.offer .right{padding:42px 40px}
+.offer h2{font-size:clamp(32px,4vw,46px)}
+.incl{list-style:none;display:grid;gap:11px;margin:22px 0 28px}
+.incl li{display:grid;grid-template-columns:24px 1fr;gap:12px;font-weight:600;font-size:16px}
+.incl li::before{content:"";width:22px;height:22px;margin-top:1px;border-radius:7px;background:var(--coral-l) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23E8502F' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E") center/14px no-repeat}
+.incl small{display:block;font-weight:500;color:var(--muted);font-size:14px}
+.offer .btn{width:100%;font-size:19px}
+.secure{display:flex;flex-wrap:wrap;gap:8px 18px;justify-content:center;margin-top:16px;font-size:13.5px;color:var(--muted);font-weight:600}
+.guar{max-width:980px;margin:26px auto 0;display:flex;gap:22px;align-items:center;border:2px dashed #B9E7E1;border-radius:24px;padding:24px 28px;background:#F4FCFA}
+.seal{flex:none;width:92px;height:92px;border-radius:50%;background:var(--mint);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--serif);font-weight:800;line-height:.9;transform:rotate(-8deg);box-shadow:inset 0 0 0 5px var(--mint),inset 0 0 0 7px #fff}
+.seal b{font-size:36px}.seal small{font:800 11px var(--sans);letter-spacing:.08em}
+.guar h3{font-size:22px;margin-bottom:4px}.guar p{color:var(--muted)}
+
+/* faq */
+.faq{max-width:800px;margin:46px auto 0}
+.faq details{border-bottom:1px solid var(--line);padding:22px 4px}
+.faq summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:20px;font-family:var(--serif);font-weight:600;font-size:21px;letter-spacing:-.01em}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary i{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid var(--ink);position:relative;transition:transform .25s,background .2s}
+.faq summary i::before,.faq summary i::after{content:"";position:absolute;left:50%;top:50%;width:12px;height:2px;background:var(--ink);transform:translate(-50%,-50%)}
+.faq summary i::after{transform:translate(-50%,-50%) rotate(90deg)}
+.faq details[open] summary i{transform:rotate(45deg);background:var(--sun)}
+.faq details p{color:var(--muted);margin-top:12px;font-size:16.5px;max-width:680px}
+
+/* final */
+.final{text-align:center;padding:120px 0 130px;overflow:hidden}
+.final h2{max-width:860px;margin:0 auto;font-size:clamp(36px,5.6vw,68px)}
+.final p{color:var(--muted);font-size:19px;max-width:600px;margin:20px auto 34px}
+.final .note{position:static;display:inline-block;margin-bottom:26px;font-size:28px;transform:rotate(-3deg)}
+footer{background:var(--ink);color:#9FAACB;font-size:13.5px;text-align:center;padding:34px 20px}
+footer p+p{margin-top:6px}
+
+.mbar{display:none}
+.js .reveal{opacity:0;transform:translateY(34px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
+.js .reveal.in{opacity:1;transform:none}
+
+@media (max-width:980px){
+  section{padding:80px 0}
+  .top nav{display:none}
+  .hero{padding:40px 0 90px}
+  .hero .wrap,.problem .wrap,.memory .wrap,.step,.step.rev,.tabpanel,.offer .card{grid-template-columns:1fr}
+  .step.rev .txt{order:0}
+  .stage{height:auto;aspect-ratio:1/0.95;margin-top:20px}
+  .sim{margin:0;border-radius:28px}
+  .sim-grid{grid-template-columns:1fr}
+  .who{grid-template-columns:1fr 1fr}
+  .steps{gap:80px}
+  .num{font-size:90px}
+}
+@media (max-width:640px){
+  .top .btn{display:none}
+  .wrap{padding:0 16px}
+  .cta-row .btn{width:100%;font-size:17px}
+  .stage{aspect-ratio:1/1.15;margin-bottom:40px}
+  .stage .w1{width:100%;right:-5%;top:24px}
+  .stage .w2{width:66%}
+  .stage .n2{display:none}
+  .who{grid-template-columns:1fr}
+  .stats{grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .stat{padding:12px 10px}.stat span{font-size:10.5px}
+  .result{padding:16px}
+  .panel{padding:20px}
+  .offer .right{padding:30px 22px}
+  .guar{flex-direction:column;text-align:center}
+  .found{left:auto;right:4%;top:auto;bottom:-6%}
+  .found b{font-size:26px}
+  .stage .n1{font-size:21px;top:-18px}.stage .n2{font-size:20px;bottom:4%}
+  .mbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:60;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:rgba(27,42,74,.95);backdrop-filter:blur(8px);transform:translateY(110%);transition:transform .25s}
+  .mbar.show{transform:none}
+  .mbar .btn{width:100%;font-size:17px;padding:15px}
+  footer{padding-bottom:100px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .reveal,.float-in{opacity:1;transform:none}
+  .hero h1 .u path{stroke-dashoffset:0}
+  .curve .keep{stroke-dashoffset:0}.curve .dot{opacity:1}
+}
+</style>
+</head>
+<body>
+
+<header class="top" id="top">
+  <div class="wrap">
+    <a class="logo" href="#"><i><b></b><b></b><b></b></i><span>Estudo na <em>Rotina</em></span></a>
+    <nav><a href="#simulador">Simulador</a><a href="#como-funciona">Como funciona</a><a href="#por-dentro">Por dentro</a><a href="#duvidas">Dúvidas</a></nav>
+    <a class="btn" data-checkout href="https://pay.kiwify.com.br/c2N0qz8">Quero a planilha</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero grid-paper">
+  <div class="wrap">
+    <div class="float-in">
+      <span class="kicker">pra quem trabalha, estuda e ainda quer passar ✎</span>
+      <h1>Sua rotina é corrida. <em>Seu estudo</em> não precisa ser <span class="u">bagunçado.<svg viewBox="0 0 300 20" preserveAspectRatio="none"><path d="M4 14 C 70 4, 150 4, 296 10"/></svg></span></h1>
+      <p class="sub">Você marca a sua semana real. A planilha <b>encontra os horários que você já tem</b>, encaixa cada matéria no lugar certo e avisa quando revisar. Sem precisar adivinhar por onde começar.</p>
+      <div class="cta-row">
+        <a class="btn" data-checkout href="https://pay.kiwify.com.br/c2N0qz8">Quero organizar meus estudos
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <a class="btn ghost" href="#simulador">Testar na minha rotina</a>
+      </div>
+      <div class="micro">
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg>Excel e Google Sheets</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg>Pronta em 10 minutos</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg>Garantia de 7 dias</span>
+      </div>
+    </div>
+    <div class="stage float-in" style="animation-delay:.15s">
+      <div class="note y n1">06:30 → Português<br><span style="font-size:.8em">12:30 → Estatística</span></div>
+      <div class="win w1"><div class="bar"><i></i><i></i><i></i>Plano Semanal · automático</div><img src="img/plano.webp" alt="Aba Plano Semanal: grade da semana com cada horário de estudo preenchido com uma matéria" width="1500" height="1227"></div>
+      <div class="win w2"><div class="bar"><i></i><i></i><i></i>Painel</div><img src="img/painel-topo.webp" alt="Painel com horas de estudo da semana, próxima prova, conteúdo concluído e agenda de hoje" width="1430" height="857"></div>
+      <div class="found"><b>17,5h</b><span>de estudo encontradas<br>numa semana de 8h de trabalho</span></div>
+      <div class="note w n2">↻ ônibus vira revisão!</div>
+    </div>
+  </div>
+</section>
+
+<div class="tick-wrap" aria-hidden="true"><div class="ticker"><div class="track" id="track"><span>concurso público</span><span>faculdade</span><span>ENEM e vestibular</span><span>OAB</span><span>residência</span><span>certificações</span><span>idiomas</span><span>pós-graduação</span></div></div></div>
+
+<!-- PROBLEMA -->
+<section class="problem">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="kicker">o problema não é você</span>
+      <h2>Falta de tempo quase nunca é falta de <em>tempo.</em></h2>
+      <p class="lead">É falta de um plano que caiba na vida que você tem: com trabalho, ônibus, aula, casa e família. Quando cada horário já tem uma matéria definida, você só senta e estuda.</p>
+    </div>
+    <ul class="excuses">
+      <li class="reveal"><s>"Não tenho tempo pra estudar."</s><p>A planilha soma os seus intervalos reais. A maioria das pessoas encontra <b>de 8 a 15 horas</b> por semana que estavam escondidas.</p></li>
+      <li class="reveal"><s>"Não sei por onde começar."</s><p>Você diz o que é importante, difícil e urgente. A planilha <b>decide quanto tempo cada matéria recebe</b> e em que horário.</p></li>
+      <li class="reveal"><s>"Estudo, mas esqueço tudo."</s><p>Cada sessão registrada gera <b>revisões em 24h, 7 e 30 dias</b>, e o painel mostra o que revisar hoje.</p></li>
+      <li class="reveal"><s>"Vou começar segunda que vem."</s><p>Leva 10 minutos para montar. <b>Hoje mesmo</b> você já sabe o que estudar no próximo horário livre.</p></li>
+    </ul>
+  </div>
+</section>
+
+<!-- SIMULADOR -->
+<section id="simulador" style="padding-top:0">
+  <div class="sim">
+    <div class="wrap" style="padding-top:80px;padding-bottom:80px">
+      <div class="reveal" style="text-align:center">
+        <span class="kicker">teste agora, de graça</span>
+        <h2>Quanto estudo cabe na <em>sua</em> semana?</h2>
+        <p class="lead" style="margin-left:auto;margin-right:auto">Responda 4 perguntas e veja uma prévia do seu plano. Na planilha você ajusta horário por horário, do jeito exato da sua rotina.</p>
+      </div>
+      <div class="sim-grid">
+        <form class="panel" id="simForm" onsubmit="return false">
+          <div class="field"><label>Começo a trabalhar às <output id="oIni">08:00</output></label><input type="range" id="ini" min="6" max="10" step="0.5" value="8" aria-label="Horário de início do trabalho"></div>
+          <div class="field"><label>Saio do trabalho às <output id="oFim">17:00</output></label><input type="range" id="fim" min="14" max="19" step="0.5" value="17" aria-label="Horário de saída do trabalho"></div>
+          <div class="field"><label>Tempo de transporte (cada trecho)</label>
+            <div class="seg" id="trans"><button type="button" data-v="0">0</button><button type="button" data-v="0.5">30min</button><button type="button" data-v="1" aria-pressed="true">1h</button><button type="button" data-v="1.5">1h30</button></div></div>
+          <div class="field"><label>Noites com aula/faculdade</label>
+            <div class="seg" id="facu"><button type="button" data-v="0">0</button><button type="button" data-v="1">1</button><button type="button" data-v="2" aria-pressed="true">2</button><button type="button" data-v="3">3</button><button type="button" data-v="5">5</button></div></div>
+          <div class="field" style="margin-bottom:0"><label>O que você precisa estudar?</label>
+            <div class="chips" id="chips"></div>
+            <div class="add"><input id="newSub" maxlength="22" placeholder="Ex.: Direito Penal" aria-label="Nova matéria"><button type="button" id="addSub">+ Add</button></div></div>
+        </form>
+        <div class="result">
+          <div class="stats">
+            <div class="stat c"><b id="sEst">0h</b><span>de estudo</span></div>
+            <div class="stat s"><b id="sRev">0h</b><span>de revisão no caminho</span></div>
+            <div class="stat m"><b id="sMat">0</b><span>matérias encaixadas</span></div>
+          </div>
+          <div class="week" id="week" role="img" aria-label="Prévia da semana com horários de estudo coloridos por matéria"></div>
+          <div class="legend" id="legend"></div>
+          <div class="sim-cta">
+            <p><b>Essa é só uma prévia.</b> Na planilha, o plano considera a importância, a dificuldade e a data da prova de cada matéria, e se refaz sozinho quando sua rotina muda.</p>
+            <a class="btn" data-checkout href="https://pay.kiwify.com.br/c2N0qz8">Quero meu plano completo</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="tip" id="tip"></div>
+
+<!-- COMO FUNCIONA -->
+<section id="como-funciona">
+  <div class="wrap">
+    <div class="reveal" style="text-align:center">
+      <span class="kicker">como funciona</span>
+      <h2>Três abas. <em>Dez minutos.</em> Um plano que se monta sozinho.</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="txt reveal"><div class="num">1</div><h3>Pinte a sua semana real</h3><p>Em cada horário, escolha o que você faz: trabalho, aula, sono, transporte, família. Onde der para estudar, marque <b>ESTUDO</b>. Tudo por listas, sem digitar nada.</p>
+          <ul><li>Grade de 05:00 às 23:30, de segunda a domingo</li><li>Mostra quantas horas vão para cada coisa da sua vida</li><li>Avisa se a sua rotina comporta a sua meta semanal</li></ul></div>
+        <div class="shot reveal"><div class="win"><div class="bar"><i></i><i></i><i></i>Minha Rotina</div><img src="img/rotina.webp" alt="Aba Minha Rotina com a semana colorida por atividade e o resumo de horas" width="1600" height="1431" loading="lazy"></div></div>
+      </div>
+      <div class="step rev">
+        <div class="txt reveal"><div class="num">2</div><h3>Diga o que precisa estudar</h3><p>Cadastre até 15 matérias, de qualquer objetivo ao mesmo tempo: concurso, faculdade, ENEM, idioma. Para cada uma: importância, dificuldade e data da prova.</p>
+          <ul><li>Prova chegando? A matéria ganha prioridade sozinha</li><li>Pausou uma matéria? Ela sai do plano na hora</li><li>Progresso do conteúdo e % de acertos por matéria</li></ul></div>
+        <div class="shot reveal"><div class="win"><div class="bar"><i></i><i></i><i></i>Matérias</div><img src="img/materias.webp" alt="Aba Matérias com importância, dificuldade, data da prova, peso no plano e progresso" width="1600" height="370" loading="lazy"></div>
+          <div class="note y" style="right:4%;bottom:-40px;transform:rotate(-4deg)">prova em 29 dias = prioridade 2×</div></div>
+      </div>
+      <div class="step">
+        <div class="txt reveal"><div class="num">3</div><h3>Abra o plano e só estude</h3><p>A aba Plano Semanal preenche cada horário de estudo com uma matéria, intercalando os conteúdos e dando mais tempo ao que mais pesa. Tempo de ônibus vira revisão leve.</p>
+          <ul><li>Escolha blocos de 30 min, 1 hora ou 1h30</li><li>Cada matéria com sua cor, fácil de bater o olho</li><li>Mudou a rotina? O plano se refaz automaticamente</li></ul></div>
+        <div class="shot reveal"><div class="win"><div class="bar"><i></i><i></i><i></i>Plano Semanal</div><img src="img/plano.webp" alt="Aba Plano Semanal preenchida automaticamente" width="1500" height="1227" loading="lazy"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REVISÕES -->
+<section class="memory">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="kicker">o que acontece depois</span>
+      <h2>Estudar uma vez não basta. <em>Revisar na hora certa,</em> sim.</h2>
+      <p class="lead">Sem revisão, a maior parte do que você estuda some em poucos dias. Na aba Registro, cada sessão anotada já agenda as próximas revisões. Quando chega o dia, ela aparece no painel em vermelho.</p>
+      <div class="pills"><span>↻ 24 horas depois</span><span>↻ 7 dias depois</span><span>↻ 30 dias depois</span></div>
+    </div>
+    <div class="curve reveal" id="curve">
+      <svg viewBox="0 0 520 280" role="img" aria-label="Ilustração: sem revisão a lembrança cai rápido; com revisões em 1, 7 e 30 dias ela se mantém alta">
+        <line x1="40" y1="240" x2="510" y2="240" stroke="#D9D2C4" stroke-width="2"/>
+        <line x1="40" y1="20" x2="40" y2="240" stroke="#D9D2C4" stroke-width="2"/>
+        <text class="lbl" x="44" y="14">quanto você lembra</text>
+        <text class="lbl" x="440" y="262">tempo →</text>
+        <path class="forget" d="M40 30 C 80 150, 140 205, 510 222"/>
+        <text class="lbl" x="380" y="210" style="fill:#98A1B3">sem revisão</text>
+        <path class="keep" d="M40 30 C 60 90, 75 110, 90 118 L 90 34 C 130 90, 170 100, 200 104 L 200 32 C 280 70, 340 78, 380 80 L 380 30 C 440 46, 480 52, 510 54"/>
+        <circle class="dot" cx="90" cy="34" r="8"/><circle class="dot" cx="200" cy="32" r="8"/><circle class="dot" cx="380" cy="30" r="8"/>
+        <text class="lbl" x="72" y="262">24h</text><text class="lbl" x="182" y="262">7 dias</text><text class="lbl" x="358" y="262">30 dias</text>
+        <text class="lbl" x="420" y="82" style="fill:#E8502F">com revisão</text>
+      </svg>
+      <p style="font-size:12.5px;color:var(--muted);margin-top:8px">Ilustração da curva do esquecimento. O efeito real varia de pessoa para pessoa.</p>
+    </div>
+  </div>
+</section>
+
+<!-- POR DENTRO -->
+<section id="por-dentro">
+  <div class="wrap">
+    <div class="reveal" style="text-align:center">
+      <span class="kicker">por dentro da planilha</span>
+      <h2>Tudo conectado. Você anota <em>uma vez.</em></h2>
+    </div>
+    <div class="tabs-wrap reveal">
+      <div class="tablist" role="tablist" id="tablist"></div>
+      <div class="tabpanel" role="tabpanel" id="tabpanel">
+        <div class="win"><div class="bar"><i></i><i></i><i></i><span id="tabBar"></span></div><img id="tabImg" src="img/painel.webp" alt="" width="1430" height="1825" loading="lazy"></div>
+        <div><h3 id="tabTitle"></h3><p id="tabText"></p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PARA QUEM -->
+<section class="grid-paper" style="border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="wrap">
+    <div class="reveal" style="text-align:center">
+      <span class="kicker">feita pra rotina de verdade</span>
+      <h2>Para quem estuda <em>no meio da vida.</em></h2>
+    </div>
+    <div class="who">
+      <div class="pcard reveal"><div class="bar" style="background:var(--coral)"></div><h3>Concurseiro que trabalha</h3><p>Transforma o almoço, o ônibus e as noites em horas de estudo com matéria definida.</p><p class="q">"8h de trabalho e ainda assim 15h de estudo."</p></div>
+      <div class="pcard reveal"><div class="bar" style="background:var(--sun)"></div><h3>Universitário sobrecarregado</h3><p>Equilibra provas, trabalhos e estágio, com prioridade automática para o que vence primeiro.</p><p class="q">"Prova sexta? Ela já subiu no plano."</p></div>
+      <div class="pcard reveal"><div class="bar" style="background:var(--mint)"></div><h3>Mães e pais que estudam</h3><p>Planeja em blocos de 30 minutos, encaixados nos intervalos que a casa permite.</p><p class="q">"30 minutos bem usados valem muito."</p></div>
+      <div class="pcard reveal"><div class="bar" style="background:var(--lilac)"></div><h3>Quem tem dois objetivos</h3><p>Concurso e faculdade, ENEM e curso técnico: tudo no mesmo plano, sem um atropelar o outro.</p><p class="q">"Um plano só para tudo."</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- OFERTA -->
+<section class="offer" id="oferta">
+  <div class="wrap">
+    <div class="reveal" style="text-align:center;margin-bottom:46px">
+      <span class="kicker">tudo o que você recebe</span>
+      <h2>Comece hoje. <em>Sem adivinhar</em> o que estudar.</h2>
+    </div>
+    <div class="card reveal">
+      <div class="left"><img src="img/capa.webp" alt="Capa da planilha Estudo na Rotina" width="1200" height="1200" loading="lazy"></div>
+      <div class="right">
+        <h2>Estudo na Rotina</h2>
+        <ul class="incl">
+          <li><span>Minha Rotina<small>sua semana de 30 em 30 minutos, com resumo de horas</small></span></li>
+          <li><span>Plano Semanal automático<small>matérias encaixadas nos seus horários livres</small></span></li>
+          <li><span>Prioridade inteligente<small>importância × dificuldade × urgência da prova</small></span></li>
+          <li><span>Revisões espaçadas<small>24h, 7 e 30 dias, com lista do que revisar hoje</small></span></li>
+          <li><span>Checklist de conteúdo<small>edital ou ementa com progresso por matéria</small></span></li>
+          <li><span>Painel com agenda do dia e gráficos</span></li>
+          <li><span>2 versões: com exemplo preenchido e em branco</span></li>
+          <li><span>Funciona no Excel e no Google Sheets</span></li>
+        </ul>
+        <a class="btn" data-checkout href="https://pay.kiwify.com.br/c2N0qz8">Quero minha planilha agora
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <div class="secure"><span>🔒 Pagamento seguro pela Kiwify</span><span>Pix, cartão ou boleto</span><span>Acesso imediato por e-mail</span></div>
+      </div>
+    </div>
+    <div class="guar reveal">
+      <div class="seal"><b>7</b><small>DIAS</small></div>
+      <div><h3>Garantia incondicional de 7 dias</h3><p>Monte sua rotina, veja o plano funcionando. Se não for para você, peça o reembolso em até 7 dias e recebe 100% do valor de volta, sem perguntas.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="duvidas" style="padding-top:40px">
+  <div class="wrap">
+    <div class="reveal" style="text-align:center"><span class="kicker">ficou alguma dúvida?</span><h2>Perguntas <em>frequentes</em></h2></div>
+    <div class="faq">
+      <details><summary>Preciso saber mexer no Excel?<i></i></summary><p>Não. Você só escolhe opções em listas e preenche as células amarelas. Todas as fórmulas já estão prontas, e a aba Início tem um passo a passo de 4 etapas. A versão com exemplo mostra tudo funcionando antes de você colocar seus dados.</p></details>
+      <details><summary>Funciona no Google Sheets e no celular?<i></i></summary><p>Sim. Funciona no Excel (computador) e no Google Sheets. No celular, use o app do Google Sheets ou do Excel para consultar seu plano e registrar seus estudos.</p></details>
+      <details><summary>Serve para concurso e faculdade ao mesmo tempo?<i></i></summary><p>Serve, e foi pensada para isso. Você cadastra matérias de objetivos diferentes e a planilha distribui o tempo entre elas, dando prioridade para a prova que estiver mais perto.</p></details>
+      <details><summary>Como a planilha decide o que eu estudo em cada horário?<i></i></summary><p>Cada matéria recebe um peso: importância × dificuldade × urgência (provas em até 30 dias valem o dobro). As matérias com mais peso recebem mais blocos, e elas são intercaladas ao longo da semana em vez de ficarem todas juntas.</p></details>
+      <details><summary>Minha rotina muda toda semana. E aí?<i></i></summary><p>É só alterar os horários na aba Minha Rotina. O Plano Semanal, o Painel e a agenda do dia se refazem na hora.</p></details>
+      <details><summary>Como eu recebo a planilha?<i></i></summary><p>Logo após a confirmação do pagamento você recebe por e-mail o acesso para baixar os arquivos. No Pix e no cartão, o acesso é praticamente imediato.</p></details>
+      <details><summary>E se eu não gostar?<i></i></summary><p>Você tem 7 dias de garantia. Se não ficar satisfeito, solicite o reembolso pela Kiwify dentro desse prazo e recebe o valor de volta.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL -->
+<section class="final grid-paper">
+  <div class="wrap">
+    <div class="note y">o próximo horário livre já pode ter matéria ✎</div>
+    <h2 class="reveal">Você não precisa de mais horas no dia. Precisa saber <em>o que fazer com as que já tem.</em></h2>
+    <p class="reveal">Em 10 minutos sua semana está montada. No próximo horário livre, você já sabe exatamente o que estudar.</p>
+    <a class="btn reveal" data-checkout href="https://pay.kiwify.com.br/c2N0qz8">Quero começar hoje
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  </div>
+</section>
+
+<footer>
+  <p>Estudo na Rotina · Pagamento processado com segurança pela Kiwify</p>
+  <p>A planilha é uma ferramenta de organização. Resultados dependem da dedicação de cada pessoa.</p>
+</footer>
+
+<div class="mbar" id="mbar"><a class="btn" data-checkout href="https://pay.kiwify.com.br/c2N0qz8">Quero minha planilha</a></div>
+
+<script>
+/* ===== Cole aqui o link do checkout da Kiwify ===== */
+var CHECKOUT = "https://pay.kiwify.com.br/c2N0qz8";
+
+document.documentElement.className = "js";
+(function(){
+  if (CHECKOUT.indexOf("COLE-SEU-LINK") === -1) {
+    document.querySelectorAll("[data-checkout]").forEach(function(a){ a.href = CHECKOUT; });
+  }
+
+  // header + barra móvel
+  var top = document.getElementById("top"), bar = document.getElementById("mbar");
+  function onScroll(){ var y = window.scrollY; top.classList.toggle("scrolled", y > 10); bar.classList.toggle("show", y > 700); }
+  window.addEventListener("scroll", onScroll, {passive:true}); onScroll();
+
+  // ticker contínuo
+  var tr = document.getElementById("track"); tr.innerHTML += tr.innerHTML;
+
+  // reveal
+  var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } }); }, {threshold:0, rootMargin:"0px 0px -12% 0px"});
+  document.querySelectorAll(".reveal,.excuses li,#curve").forEach(function(el){ io.observe(el); });
+
+  // ===== simulador =====
+  var COLORS = ["#FFB4A2","#A0E7E5","#D7F08A","#C9B8F0","#B4F0C4","#FBD3A6","#A7C7F2","#FFAEC9"];
+  var subs = ["Português","Matemática","Direito Constitucional"];
+  var DAYS = ["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"], DAYF = ["Segunda","Terça","Quarta","Quinta","Sexta","Sábado","Domingo"];
+  var A = { sono:"#E4E0F5", trab:"#D6DEE8", trans:"#FFE08A", aula:"#BFD7FF", ref:"#FFD6E0", livre:"#EFE7D9" };
+  var NAMES = { sono:"Sono", trab:"Trabalho", trans:"↻ Revisão no transporte", aula:"Faculdade/aula", ref:"Refeição", livre:"Livre" };
+  var $ = function(id){ return document.getElementById(id); };
+  var week = $("week"), cells = [];
+  week.appendChild(document.createElement("div"));
+  DAYS.forEach(function(d){ var h = document.createElement("div"); h.className = "h"; h.textContent = d; week.appendChild(h); });
+  for (var s = 0; s < 38; s++) {
+    var t = document.createElement("div"); t.className = "t"; t.textContent = s % 4 === 0 ? fmt(5 + s/2) : ""; week.appendChild(t);
+    cells[s] = [];
+    for (var d = 0; d < 7; d++) { var c = document.createElement("div"); c.className = "cell"; c.dataset.s = s; c.dataset.d = d; week.appendChild(c); cells[s][d] = c; }
+  }
+  function fmt(h){ var hh = Math.floor(h), mm = Math.round((h - hh) * 60); return (hh < 10 ? "0" : "") + hh + ":" + (mm ? "30" : "00"); }
+  function segVal(id){ var b = document.querySelector("#" + id + " [aria-pressed=true]"); return parseFloat(b.dataset.v); }
+  document.querySelectorAll(".seg").forEach(function(g){
+    g.addEventListener("click", function(e){ var b = e.target.closest("button"); if(!b) return;
+      g.querySelectorAll("button").forEach(function(x){ x.setAttribute("aria-pressed", x === b ? "true" : "false"); }); build(); });
+  });
+  $("ini").addEventListener("input", build); $("fim").addEventListener("input", build);
+
+  function renderChips(){
+    var box = $("chips"); box.innerHTML = "";
+    subs.forEach(function(n, i){
+      var c = document.createElement("span"); c.className = "chip"; c.style.background = COLORS[i % COLORS.length];
+      c.appendChild(document.createTextNode(n));
+      var x = document.createElement("button"); x.type = "button"; x.setAttribute("aria-label", "Remover " + n); x.textContent = "×";
+      x.onclick = function(){ subs.splice(i, 1); renderChips(); build(); };
+      c.appendChild(x); box.appendChild(c);
+    });
+    $("addSub").disabled = subs.length >= 8;
+  }
+  function addSub(){ var v = $("newSub").value.trim(); if (v && subs.length < 8 && subs.indexOf(v) === -1) { subs.push(v); $("newSub").value = ""; renderChips(); build(); } }
+  $("addSub").onclick = addSub;
+  $("newSub").addEventListener("keydown", function(e){ if (e.key === "Enter") { e.preventDefault(); addSub(); } });
+
+  var plan = [];
+  function build(){
+    var ini = parseFloat($("ini").value), fim = parseFloat($("fim").value), tr = segVal("trans"), fac = segVal("facu");
+    if (fim <= ini + 4) fim = ini + 4;
+    $("oIni").textContent = fmt(ini); $("oFim").textContent = fmt(fim);
+    var facDays = {1:[2],2:[1,3],3:[0,2,4],5:[0,1,2,3,4]}[fac] || [];
+    plan = [];
+    for (var d = 0; d < 7; d++) {
+      plan[d] = [];
+      for (var s = 0; s < 38; s++) {
+        var h = 5 + s/2, a = "livre";
+        if (d < 5) {
+          var wake = Math.max(5, ini - tr - 1.5);
+          if (h < wake || h >= 23) a = "sono";
+          else if (h >= ini - tr && h < ini) a = "trans";
+          else if (h >= ini && h < fim) a = (h >= 12 && h < 13) ? (h < 12.5 ? "ref" : "est") : "trab";
+          else if (h >= fim && h < fim + tr) a = "trans";
+          else if (h >= wake && h < wake + 0.5) a = "ref";
+          else if (h >= wake + 0.5 && h < ini - tr) a = "est";
+          else if (facDays.indexOf(d) > -1) { a = (h >= 19 && h < 22) ? "aula" : (h >= 22 && h < 22 + Math.min(tr, .5) ? "trans" : (h >= fim + tr && h < fim + tr + .5 ? "ref" : "livre")); }
+          else if (h >= fim + tr && h < fim + tr + .5) a = "ref";
+          else if (h >= Math.max(19, fim + tr + .5) && h < 21.5) a = "est";
+        } else if (d === 5) {
+          if (h < 7.5 || h >= 23.5) a = "sono"; else if (h >= 8 && h < 11) a = "est"; else if (h >= 12 && h < 13) a = "ref";
+        } else {
+          if (h < 8 || h >= 22.5) a = "sono"; else if (h >= 18 && h < 19.5) a = "est"; else if (h >= 12 && h < 13) a = "ref";
+        }
+        plan[d][s] = { a: a };
+      }
+    }
+    // distribui matérias em blocos de 1h, intercaladas
+    var k = 0, est = 0, rev = 0, r = 0, used = {};
+    for (var d2 = 0; d2 < 7; d2++) {
+      var run = 0;
+      for (var s2 = 0; s2 < 38; s2++) {
+        var p = plan[d2][s2];
+        if (p.a === "est") { if (run % 2 === 0) k++; run++; est += .5;
+          if (subs.length) { p.i = (k - 1) % subs.length; used[p.i] = 1; } }
+        else { run = 0; if (p.a === "trans") { rev += .5; if (subs.length) p.i = (r++) % subs.length; } }
+      }
+    }
+    for (var d3 = 0; d3 < 7; d3++) for (var s3 = 0; s3 < 38; s3++) {
+      var q = plan[d3][s3], c = cells[s3][d3];
+      c.style.background = q.a === "est" ? (subs.length ? COLORS[q.i % COLORS.length] : "#FF6B4A") : A[q.a];
+      c.style.boxShadow = q.a === "est" ? "inset 0 0 0 1px rgba(27,42,74,.25)" : "none";
+    }
+    count($("sEst"), est, "h"); count($("sRev"), rev, "h"); count($("sMat"), Object.keys(used).length, "");
+    var lg = $("legend"); lg.innerHTML = "";
+    subs.forEach(function(n, i){ lg.insertAdjacentHTML("beforeend", '<span><i style="background:' + COLORS[i % COLORS.length] + '"></i>' + esc(n) + "</span>"); });
+    [["trans","Revisão no transporte"],["trab","Trabalho"],["aula","Aula"],["sono","Sono"]].forEach(function(x){ lg.insertAdjacentHTML("beforeend", '<span><i style="background:' + A[x[0]] + '"></i>' + x[1] + "</span>"); });
+  }
+  function esc(s){ var d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+  function count(el, to, suf){
+    var from = parseFloat(el.dataset.v || 0), t0 = performance.now(); el.dataset.v = to;
+    (function step(t){ var p = Math.min(1, (t - t0) / 500), v = from + (to - from) * (1 - Math.pow(1 - p, 3));
+      el.textContent = (suf ? v.toFixed(1).replace(".0","").replace(".",",") : Math.round(v)) + suf; if (p < 1) requestAnimationFrame(step); })(t0);
+  }
+  var tip = $("tip");
+  week.addEventListener("mousemove", function(e){
+    var c = e.target.closest(".cell"); if (!c) { tip.style.opacity = 0; return; }
+    var q = plan[c.dataset.d][c.dataset.s], txt = DAYF[c.dataset.d] + " " + fmt(5 + c.dataset.s/2) + " · ";
+    txt += q.a === "est" ? (subs.length ? subs[q.i] : "Estudo") : (q.a === "trans" && subs.length ? "↻ revisão de " + subs[q.i] : NAMES[q.a]);
+    tip.textContent = txt; tip.style.opacity = 1; tip.style.left = (e.clientX + 14) + "px"; tip.style.top = (e.clientY - 34) + "px";
+  });
+  week.addEventListener("mouseleave", function(){ tip.style.opacity = 0; });
+  renderChips(); build();
+
+  // ===== abas por dentro =====
+  var TABS = [
+    ["Painel","img/painel.webp",1430,1825,"Seu dia em uma tela","Horas da semana, próxima prova, conteúdo concluído, % de acertos, a agenda de hoje com horário e matéria, e a lista do que revisar."],
+    ["Minha Rotina","img/rotina.webp",1600,1431,"Sua semana, de 30 em 30 minutos","Pinte a semana com listas suspensas. Ao lado, o resumo mostra para onde vão suas horas e se a sua meta cabe na rotina."],
+    ["Plano Semanal","img/plano.webp",1500,1227,"O cronograma que se monta sozinho","Cada horário de estudo recebe uma matéria, com cores e blocos do tamanho que você escolher. Transporte vira revisão."],
+    ["Matérias","img/materias.webp",1600,370,"Prioridade calculada para você","Importância, dificuldade e data da prova viram um peso. A planilha mostra quanto tempo cada matéria recebe e seu progresso."],
+    ["Registro","img/registro.webp",1600,484,"Revisões que se agendam sozinhas","Anote o que estudou, quanto tempo e quantas questões acertou. As revisões de 24h, 7 e 30 dias aparecem na data certa."],
+    ["Conteúdo","img/conteudo.webp",1600,1151,"O edital virou checklist","Liste os tópicos de cada matéria e marque o status. O progresso de cada matéria se atualiza no painel."],
+    ["Início","img/inicio.webp",1600,1087,"Passo a passo de 10 minutos","Seu nome, sua meta semanal e o tamanho do bloco de estudo. Um guia simples para começar sem travar."]
+  ];
+  var tl = $("tablist"), img = $("tabImg");
+  TABS.forEach(function(t, i){
+    var b = document.createElement("button"); b.type = "button"; b.setAttribute("role","tab"); b.textContent = t[0];
+    b.onclick = function(){ show(i); }; tl.appendChild(b);
+  });
+  function show(i){
+    var t = TABS[i];
+    tl.querySelectorAll("button").forEach(function(b, j){ b.setAttribute("aria-selected", j === i ? "true" : "false"); });
+    img.style.opacity = 0;
+    setTimeout(function(){ img.src = t[1]; img.width = t[2]; img.height = t[3]; img.alt = "Aba " + t[0] + " da planilha"; img.style.opacity = 1; }, 180);
+    $("tabBar").textContent = t[0]; $("tabTitle").textContent = t[4]; $("tabText").textContent = t[5];
+  }
+  show(0);
+})();
+</script>
+</body>
+</html>

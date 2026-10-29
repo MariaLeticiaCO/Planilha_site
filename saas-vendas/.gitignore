@@ -6,7 +6,7 @@ out/
 *.db-wal
 .env*.local
 .env
-uploads/
+/uploads/
 next-env.d.ts
 *.tsbuildinfo
 .vercel

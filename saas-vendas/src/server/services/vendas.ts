@@ -93,7 +93,7 @@ export async function registrarVenda(s: Sessao, dto: NovaVenda): Promise<VendaRe
       await inserir(trx, 'ItemVenda', {
         EmpresaId: s.empresaId, VendaId: id, ProdutoId: i.produtoId, Quantidade: i.quantidade, PrecoUnitario: i.preco, CustoUnitario: i.custo
       });
-      await trx.updateTable('Produto').set({ Estoque: sql`Estoque - ${i.quantidade}` })
+      await trx.updateTable('Produto').set({ Estoque: sql`${sql.ref('Estoque')} - ${i.quantidade}` })
         .where('Id', '=', i.produtoId).where('EmpresaId', '=', s.empresaId).execute();
     }
     for (const p of parcelas) {
@@ -206,7 +206,7 @@ export async function cancelarVenda(s: Sessao, id: number) {
     await trx.updateTable('ParcelaCrediario').set({ Status: 'CANCELADA' })
       .where('VendaId', '=', id).where('EmpresaId', '=', s.empresaId).where('Status', '=', 'ABERTA').execute();
     for (const i of itens)
-      await trx.updateTable('Produto').set({ Estoque: sql`Estoque + ${num(i.Quantidade)}` })
+      await trx.updateTable('Produto').set({ Estoque: sql`${sql.ref('Estoque')} + ${num(i.Quantidade)}` })
         .where('Id', '=', i.ProdutoId).where('EmpresaId', '=', s.empresaId).execute();
   });
 }

@@ -2,20 +2,41 @@ import 'server-only';
 import { createRequire } from 'node:module';
 import fs from 'node:fs';
 import path from 'node:path';
-import { Kysely, MssqlDialect, SqliteDialect, sql, type Transaction } from 'kysely';
+import { Kysely, MssqlDialect, PostgresDialect, SqliteDialect, sql, type Transaction } from 'kysely';
+import pg from 'pg';
 import * as Tarn from 'tarn';
 import * as Tedious from 'tedious';
 import type { Banco } from './schema';
 
 export type Db = Kysely<Banco> | Transaction<Banco>;
 
-/** mssql (produção — o mesmo SQL Server do documento) ou sqlite (só demonstração/testes locais). */
-export const provedor: 'mssql' | 'sqlite' = process.env.DATABASE_PROVIDER === 'sqlite' ? 'sqlite' : 'mssql';
+export type Provedor = 'postgres' | 'mssql' | 'sqlite';
+
+/** URL do PostgreSQL. A integração Neon da Vercel cria DATABASE_URL (e POSTGRES_URL). */
+export const urlPostgres = (env: Record<string, string | undefined> = process.env) => env.DATABASE_URL || env.POSTGRES_URL || '';
+
+/**
+ * Qual banco usar:
+ * - postgres: PostgreSQL (Neon, criado dentro da Vercel) — o padrão em produção;
+ * - mssql: SQL Server do documento original (SQLSERVER_CONNECTION_STRING);
+ * - sqlite: só demonstração/testes locais.
+ * Sem DATABASE_PROVIDER, escolhe pelo que estiver configurado.
+ */
+export function resolverProvedor(env: Record<string, string | undefined> = process.env): Provedor {
+  const escolhido = env.DATABASE_PROVIDER?.trim().toLowerCase();
+  const temSqlServer = !!(env.SQLSERVER_CONNECTION_STRING || env.SQLSERVER_HOST);
+  if (escolhido === 'sqlite') return 'sqlite';
+  if (escolhido === 'mssql' && (temSqlServer || !urlPostgres(env))) return 'mssql';
+  if (escolhido === 'postgres' || urlPostgres(env)) return 'postgres';
+  return temSqlServer ? 'mssql' : 'postgres';
+}
+
+export const provedor: Provedor = resolverProvedor();
 
 const globalDb = globalThis as unknown as { __db?: Kysely<Banco> };
 
 export function db(): Kysely<Banco> {
-  if (!globalDb.__db) globalDb.__db = provedor === 'sqlite' ? criarSqlite() : criarMssql();
+  if (!globalDb.__db) globalDb.__db = provedor === 'postgres' ? criarPostgres() : provedor === 'sqlite' ? criarSqlite() : criarMssql();
   return globalDb.__db;
 }
 
@@ -92,6 +113,30 @@ function criarMssql(): Kysely<Banco> {
   });
 }
 
+// Datas sem fuso voltam como texto ("yyyy-MM-dd HH:mm:ss"), igual ao que foi gravado (hora de Brasília);
+// numeric e bigint voltam como número.
+pg.types.setTypeParser(1114, (v: string) => v); // timestamp
+pg.types.setTypeParser(1082, (v: string) => v); // date
+pg.types.setTypeParser(1700, (v: string) => parseFloat(v)); // numeric
+pg.types.setTypeParser(20, (v: string) => parseInt(v, 10)); // bigint (count)
+
+function criarPostgres(): Kysely<Banco> {
+  const url = urlPostgres();
+  if (!url) throw new Error('Configure DATABASE_URL (crie o banco Neon em Storage, no projeto da Vercel).');
+  const local = /@(localhost|127\.0\.0\.1)[:/]/.test(url);
+  return new Kysely<Banco>({
+    dialect: new PostgresDialect({
+      pool: new pg.Pool({
+        connectionString: url,
+        max: 5,
+        idleTimeoutMillis: 10_000,
+        connectionTimeoutMillis: 15_000,
+        ...(local || /sslmode=/.test(url) ? {} : { ssl: { rejectUnauthorized: false } })
+      })
+    })
+  });
+}
+
 function criarSqlite(): Kysely<Banco> {
   const require = createRequire(import.meta.url);
   const Database = require('better-sqlite3');
@@ -104,19 +149,22 @@ function criarSqlite(): Kysely<Banco> {
   return new Kysely<Banco>({ dialect: new SqliteDialect({ database: banco }) });
 }
 
-/** bit do SQL Server (boolean) ou do SQLite (0/1) → boolean. */
+/** bit do SQL Server (boolean) ou smallint do PostgreSQL/SQLite (0/1) → boolean. */
 export const bool = (v: unknown) => v === true || v === 1 || v === '1';
 /** boolean → 0/1 (os dois bancos aceitam). */
 export const bit = (v: boolean) => (v ? 1 : 0);
 /** decimal/numeric → number. */
 export const num = (v: unknown) => (v == null ? 0 : Number(v));
 
-/** INSERT devolvendo o Id gerado (OUTPUT no SQL Server, RETURNING no SQLite). */
+/** INSERT devolvendo o Id gerado (OUTPUT no SQL Server, RETURNING no PostgreSQL e no SQLite). */
 export async function inserir<T extends keyof Banco>(executor: Db, tabela: T, valores: Record<string, unknown>): Promise<number> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const q = (executor as any).insertInto(tabela).values(valores);
   const linha = provedor === 'mssql' ? await q.output('inserted.Id').executeTakeFirstOrThrow() : await q.returning('Id').executeTakeFirstOrThrow();
   return Number(linha.Id);
 }
+
+/** Operador de busca de texto sem diferenciar maiúsculas (no PostgreSQL o LIKE diferencia). */
+export const contem = () => (provedor === 'postgres' ? 'ilike' : 'like') as 'like';
 
 export { sql };

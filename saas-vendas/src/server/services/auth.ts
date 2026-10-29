@@ -1,5 +1,6 @@
 import 'server-only';
 import { db, bool, inserir } from '../db/conexao';
+import { prepararBanco } from '../db/preparar';
 import { agora, lerData, somarDias } from '@/domain/datas';
 import { soDigitos } from '@/domain/formatos';
 import { DIAS_TRIAL } from '@/domain/planos';
@@ -19,6 +20,7 @@ const paraSessao = (u: { Id: number; EmpresaId: number; Nome: string; Email: str
 
 /** Cria Empresa (TRIAL de 7 dias) e Usuario (DONO). O onboarding vem em seguida. */
 export async function cadastrar(dados: { nome: string; email: string; whatsapp: string; senha: string }): Promise<Sessao> {
+  await prepararBanco();
   const email = normalizarEmail(dados.email);
   const existe = await db().selectFrom('Usuario').select('Id').where('Email', '=', email).executeTakeFirst();
   if (existe) throw new RegraNegocioError('Já existe uma conta com este e-mail. Tente entrar ou recuperar a senha.');
@@ -40,6 +42,7 @@ export async function cadastrar(dados: { nome: string; email: string; whatsapp: 
 
 /** Confere e-mail e senha. Bloqueia por 15 minutos depois de 5 tentativas erradas. */
 export async function autenticar(emailInformado: string, senha: string): Promise<{ sessao?: Sessao; erro?: string }> {
+  await prepararBanco();
   const erroPadrao = 'E-mail ou senha incorretos.';
   const u = await db().selectFrom('Usuario').selectAll().where('Email', '=', normalizarEmail(emailInformado)).executeTakeFirst();
   if (!u || !bool(u.Ativo)) return { erro: erroPadrao };
@@ -82,6 +85,7 @@ export async function criarTokenRecuperacao(usuarioId: number, horas: number): P
 
 /** Token válido por 1 hora, enviado por e-mail. Não revela se o e-mail existe. */
 export async function solicitarRecuperacao(emailInformado: string) {
+  await prepararBanco();
   const u = await db().selectFrom('Usuario').select(['Id', 'Nome', 'Email', 'Ativo']).where('Email', '=', normalizarEmail(emailInformado)).executeTakeFirst();
   if (!u || !bool(u.Ativo)) return;
   const token = await criarTokenRecuperacao(u.Id, 1);
@@ -95,6 +99,7 @@ export async function solicitarRecuperacao(emailInformado: string) {
 
 async function usuarioDoToken(token: string) {
   if (!token) return undefined;
+  await prepararBanco();
   return db().selectFrom('Usuario').select(['Id', 'Ativo', 'AceiteTermosEm'])
     .where('TokenRecuperacaoHash', '=', hashToken(token)).where('TokenExpiraEm', '>', agora()).executeTakeFirst();
 }

@@ -1,0 +1,102 @@
+@{
+    ViewData["Title"] = "Início";
+    var hoje = DateTime.Today.ToString("yyyy-MM-dd");
+}
+<div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+        <p class="subtitulo">Olá, @(User.Identity?.Name?.Split(' ')[0])!</p>
+        <h1 class="titulo-pagina" id="periodo-texto">Seu lucro</h1>
+    </div>
+    <a href="/vendas/nova" class="btn-primario hidden sm:inline-flex">@Icone.Svg("mais") Nova venda</a>
+</div>
+
+@* Filtro: Hoje · Semana · Mês · Ano e intervalo personalizado *@
+<div class="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center">
+    <div class="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+        <div class="segmentado" id="filtro-periodo" role="tablist">
+            <button type="button" data-periodo="hoje" class="ativo">Hoje</button>
+            <button type="button" data-periodo="semana">Semana</button>
+            <button type="button" data-periodo="mes">Mês</button>
+            <button type="button" data-periodo="ano">Ano</button>
+            <button type="button" data-periodo="personalizado">@Icone.Svg("calendario", "w-4 h-4 inline -mt-0.5") Período</button>
+        </div>
+    </div>
+    <form id="filtro-personalizado" class="oculto flex flex-wrap items-center gap-2" data-sem-trava>
+        <input type="date" id="filtro-inicio" class="campo w-auto py-2" value="@DateTime.Today.AddDays(-6).ToString("yyyy-MM-dd")" max="@hoje" aria-label="De" />
+        <span class="text-sm text-slate-500">até</span>
+        <input type="date" id="filtro-fim" class="campo w-auto py-2" value="@hoje" max="@hoje" aria-label="Até" />
+        <button class="btn-suave">Aplicar</button>
+    </form>
+</div>
+
+@* 4 cards *@
+<div class="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
+    <div class="card-p">
+        <p class="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">@Icone.Svg("dinheiro", "w-4 h-4") Faturamento</p>
+        <p class="mt-2 text-xl font-extrabold text-slate-900 sm:text-2xl" data-card="faturamento"><span class="skeleton inline-block h-7 w-24"></span></p>
+        <p class="mt-1 text-xs text-slate-500" data-card="qtdVendas">&nbsp;</p>
+    </div>
+    <div class="col-span-2 row-start-1 rounded-2xl bg-gradient-to-br from-marca-600 to-marca-800 p-4 text-white shadow-lg shadow-marca-600/25 sm:p-5 lg:col-span-1 lg:col-start-2">
+        <p class="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-marca-100">@Icone.Svg("tendencia", "w-4 h-4") Lucro líquido</p>
+        <p class="mt-2 text-3xl font-extrabold" data-card="lucro"><span class="inline-block h-8 w-32 animate-pulse rounded-lg bg-white/20"></span></p>
+        <p class="mt-1 text-xs text-marca-100" data-card="margem">&nbsp;</p>
+    </div>
+    <div class="card-p">
+        <p class="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">@Icone.Svg("recibo", "w-4 h-4") Ticket médio</p>
+        <p class="mt-2 text-xl font-extrabold text-slate-900 sm:text-2xl" data-card="ticketMedio"><span class="skeleton inline-block h-7 w-20"></span></p>
+        <p class="mt-1 text-xs text-slate-500" data-card="taxas">&nbsp;</p>
+    </div>
+    <a href="/crediario" class="card-p col-span-2 block transition hover:border-marca-300 lg:col-span-1">
+        <p class="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">@Icone.Svg("crediario", "w-4 h-4") A receber no crediário</p>
+        <p class="mt-2 text-xl font-extrabold text-slate-900 sm:text-2xl" data-card="aReceber"><span class="skeleton inline-block h-7 w-20"></span></p>
+        <p class="mt-1 text-xs font-semibold text-rose-600" data-card="atrasado">&nbsp;</p>
+    </a>
+</div>
+
+<div id="alerta-estoque" class="oculto mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+    <div class="flex items-start gap-3">
+        <span class="text-amber-600">@Icone.Svg("alerta")</span>
+        <div class="flex-1">
+            <p class="font-semibold text-amber-900">Estoque abaixo do mínimo</p>
+            <ul class="mt-1 flex flex-wrap gap-1.5" id="lista-estoque"></ul>
+        </div>
+        <a href="/produtos?status=estoque-baixo" class="shrink-0 text-sm font-semibold text-amber-800 underline">Ver</a>
+    </div>
+</div>
+
+<div class="mt-4 grid gap-4 lg:grid-cols-3">
+    <div class="card-p lg:col-span-2">
+        <div class="flex items-center justify-between">
+            <h2 class="font-bold text-slate-900">Faturamento e lucro</h2>
+            <span class="text-xs text-slate-500" id="serie-legenda"></span>
+        </div>
+        <div id="grafico-linha" class="-mx-2 mt-2 min-h-[260px]"></div>
+    </div>
+    <div class="card-p">
+        <h2 class="font-bold text-slate-900">Formas de pagamento</h2>
+        <div id="grafico-pizza" class="mt-2 min-h-[240px]"></div>
+        <p class="mt-2 rounded-xl bg-slate-50 p-3 text-sm text-slate-600">Taxas pagas no período: <b class="text-slate-900" id="total-taxas">—</b></p>
+    </div>
+</div>
+
+<div class="mt-4 grid gap-4 md:grid-cols-2">
+    <div class="card-p">
+        <h2 class="flex items-center gap-2 font-bold text-slate-900"><span class="text-emerald-600">@Icone.Svg("tendencia")</span> Top 5 mais vendidos</h2>
+        <ol id="mais-vendidos" class="mt-3 space-y-2"></ol>
+    </div>
+    <div class="card-p">
+        <h2 class="flex items-center gap-2 font-bold text-slate-900"><span class="text-amber-600">@Icone.Svg("caixa")</span> Top 5 menos vendidos</h2>
+        <p class="text-xs text-slate-500">Com o estoque ao lado, para ver o que está parado.</p>
+        <ol id="menos-vendidos" class="mt-3 space-y-2"></ol>
+    </div>
+</div>
+
+@* Botão flutuante "+ Nova venda" *@
+<a href="/vendas/nova" class="fixed bottom-24 right-4 z-30 inline-flex items-center gap-2 rounded-full bg-marca-600 px-5 py-3.5 font-semibold text-white shadow-xl shadow-marca-600/40 transition hover:bg-marca-700 lg:bottom-8 lg:right-8" style="margin-bottom: env(safe-area-inset-bottom)">
+    @Icone.Svg("mais") Nova venda
+</a>
+
+@section Scripts {
+    <script src="~/lib/apexcharts/apexcharts.min.js"></script>
+    <script src="~/js/dashboard.js" asp-append-version="true"></script>
+}

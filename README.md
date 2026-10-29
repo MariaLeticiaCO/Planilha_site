@@ -17,3 +17,7 @@ Landing page da planilha **Estudo na Rotina** (organização de estudos para rot
 - Link do checkout: edite a variável `CHECKOUT` no fim de `estudos/index.html`
 
 Depois do deploy, a página fica em `https://planilhasite.vercel.app/estudos`.
+
+## SaaS Controle de Vendas — `ControleVendas/`
+
+Sistema completo (ASP.NET Core 8 MVC + SQL Server) para o pequeno empreendedor ver o lucro real das vendas, com PDV, crediário, estoque e relatórios — funciona no computador e no celular (PWA). Veja `ControleVendas/README.md`. Não é publicado na Vercel (está no `.vercelignore`); hospede no Azure App Service ou em uma VPS.

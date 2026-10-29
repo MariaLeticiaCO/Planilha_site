@@ -1,0 +1,31 @@
+@model LoginDto
+@{
+    Layout = "_LayoutAuth";
+    ViewData["Title"] = "Entrar";
+}
+<h1 class="text-2xl font-extrabold text-slate-900">Entrar</h1>
+<p class="mt-1 text-sm text-slate-500">Bom te ver de novo!</p>
+
+<form method="post" asp-antiforgery="true" action="/login" class="mt-6 space-y-4" novalidate>
+    <div asp-validation-summary="ModelOnly"></div>
+    <input type="hidden" asp-for="ReturnUrl" />
+    <div>
+        <label asp-for="Email" class="rotulo">E-mail</label>
+        <input asp-for="Email" type="email" class="campo" autocomplete="username" inputmode="email" autofocus />
+        <span asp-validation-for="Email" class="erro-campo"></span>
+    </div>
+    <div>
+        <div class="flex items-center justify-between">
+            <label asp-for="Senha" class="rotulo">Senha</label>
+            <a href="/recuperar-senha" class="mb-1 text-xs font-semibold text-marca-700">Esqueci minha senha</a>
+        </div>
+        <input asp-for="Senha" class="campo" autocomplete="current-password" />
+        <span asp-validation-for="Senha" class="erro-campo"></span>
+    </div>
+    <label class="flex items-center gap-2.5 text-sm text-slate-600">
+        <input asp-for="LembrarDeMim" class="h-4 w-4 rounded border-slate-300 text-marca-600 focus:ring-marca-500" />
+        Lembrar de mim
+    </label>
+    <button type="submit" class="btn-primario btn-lg w-full">Entrar</button>
+</form>
+<p class="mt-5 text-center text-sm text-slate-600">Ainda não tem conta? <a href="/cadastro" class="font-semibold text-marca-700">Teste grátis 7 dias</a></p>

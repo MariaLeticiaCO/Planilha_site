@@ -1,0 +1,11 @@
+bin/
+obj/
+node_modules/
+logs/
+*.db
+*.db-shm
+*.db-wal
+*.user
+.vs/
+src/ControleVendas.Web/wwwroot/uploads/
+appsettings.*.local.json

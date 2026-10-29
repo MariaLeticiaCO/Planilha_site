@@ -1,0 +1,22 @@
+@model RedefinirSenhaDto
+@{
+    Layout = "_LayoutAuth";
+    ViewData["Title"] = "Criar nova senha";
+}
+<h1 class="text-2xl font-extrabold text-slate-900">Criar nova senha</h1>
+<p class="mt-1 text-sm text-slate-500">Mínimo de 8 caracteres, com letras e números.</p>
+<form method="post" asp-antiforgery="true" action="/recuperar-senha/redefinir" class="mt-6 space-y-4" novalidate>
+    <div asp-validation-summary="ModelOnly"></div>
+    <input type="hidden" asp-for="Token" />
+    <div>
+        <label asp-for="Senha" class="rotulo">Nova senha</label>
+        <input asp-for="Senha" class="campo" autocomplete="new-password" autofocus />
+        <span asp-validation-for="Senha" class="erro-campo"></span>
+    </div>
+    <div>
+        <label asp-for="ConfirmarSenha" class="rotulo">Confirme a nova senha</label>
+        <input asp-for="ConfirmarSenha" class="campo" autocomplete="new-password" />
+        <span asp-validation-for="ConfirmarSenha" class="erro-campo"></span>
+    </div>
+    <button type="submit" class="btn-primario btn-lg w-full">Salvar senha</button>
+</form>

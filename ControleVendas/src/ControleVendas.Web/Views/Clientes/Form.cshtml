@@ -1,0 +1,38 @@
+@model ClienteDto
+@{
+    var novo = Model.Id == 0;
+    ViewData["Title"] = novo ? "Novo cliente" : "Editar cliente";
+}
+<div class="flex items-center gap-3">
+    <a href="@(novo ? "/clientes" : $"/clientes/{Model.Id}")" class="rounded-xl p-2 text-slate-500 hover:bg-slate-100" aria-label="Voltar">@Icone.Svg("esquerda")</a>
+    <h1 class="titulo-pagina">@ViewData["Title"]</h1>
+</div>
+<form method="post" asp-antiforgery="true" action="/clientes" class="card-p mt-4 max-w-2xl space-y-4" novalidate>
+    <div asp-validation-summary="ModelOnly"></div>
+    <input type="hidden" asp-for="Id" />
+    <div>
+        <label asp-for="Nome" class="rotulo">Nome</label>
+        <input asp-for="Nome" class="campo" autofocus="@novo" />
+        <span asp-validation-for="Nome" class="erro-campo"></span>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+            <label asp-for="Telefone" class="rotulo">WhatsApp</label>
+            <input asp-for="Telefone" class="campo" inputmode="tel" data-mascara="telefone" placeholder="(11) 98765-4321" />
+            <span asp-validation-for="Telefone" class="erro-campo"></span>
+        </div>
+        <div>
+            <label asp-for="Documento" class="rotulo">CPF/CNPJ <span class="font-normal text-slate-400">(opcional)</span></label>
+            <input asp-for="Documento" class="campo" inputmode="numeric" data-mascara="documento" />
+            <span asp-validation-for="Documento" class="erro-campo"></span>
+        </div>
+    </div>
+    <div>
+        <label asp-for="Observacao" class="rotulo">Observação</label>
+        <textarea asp-for="Observacao" rows="3" class="campo" placeholder="Ex.: prefere receber cobrança à noite"></textarea>
+        <span asp-validation-for="Observacao" class="erro-campo"></span>
+    </div>
+    <button type="submit" class="btn-primario btn-lg w-full sm:w-auto">Salvar cliente</button>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

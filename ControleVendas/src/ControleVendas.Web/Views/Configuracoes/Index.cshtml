@@ -1,0 +1,129 @@
+@{
+    ViewData["Title"] = "Configurações";
+    var dono = User.IsInRole("DONO");
+    var perfil = (PerfilDto)ViewBag.Perfil;
+    var negocio = ViewBag.Negocio as NegocioDto;
+    var setores = ViewBag.Setores as IReadOnlyList<SetorDto>;
+    var usuarios = ViewBag.Usuarios as IReadOnlyList<UsuarioListaDto>;
+    var empresa = (EmpresaContextoDto)Context.Items[ControleVendas.Web.Filters.EmpresaFilter.ChaveItems]!;
+}
+<h1 class="titulo-pagina">Configurações</h1>
+
+<div class="mt-4 grid gap-4 lg:grid-cols-2">
+    @if (dono && negocio is not null)
+    {
+        @* Dados do negócio *@
+        <section class="card-p" id="negocio">
+            <h2 class="flex items-center gap-2 font-bold">@Icone.Svg("loja", "w-5 h-5 text-marca-600") Dados do negócio</h2>
+            <form method="post" asp-antiforgery="true" action="/configuracoes/negocio" enctype="multipart/form-data" class="mt-4 space-y-4">
+                <div class="flex items-center gap-4">
+                    <label class="relative shrink-0 cursor-pointer" title="Logo">
+                        @if (!string.IsNullOrEmpty(negocio.LogoUrl))
+                        {
+                            <img src="@negocio.LogoUrl" alt="Logo" class="h-16 w-16 rounded-2xl object-cover" id="logo-preview" />
+                        }
+                        else
+                        {
+                            <span class="flex h-16 w-16 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 text-[11px] text-slate-500" id="logo-vazio">@Icone.Svg("imagem", "w-5 h-5") Logo</span>
+                        }
+                        <input type="file" name="logo" accept="image/jpeg,image/png,image/webp" class="sr-only" />
+                    </label>
+                    <div class="flex-1">
+                        <label class="rotulo" for="Nome">Nome do negócio</label>
+                        <input id="Nome" name="Nome" value="@negocio.Nome" class="campo" required maxlength="120" />
+                    </div>
+                </div>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                        <label class="rotulo" for="SetorId">Setor</label>
+                        <select id="SetorId" name="SetorId" class="campo">
+                            @foreach (var s in setores!) { <option value="@s.Id" selected="@(negocio.SetorId == s.Id)">@s.Nome</option> }
+                        </select>
+                    </div>
+                    <div>
+                        <label class="rotulo" for="Telefone">Telefone</label>
+                        <input id="Telefone" name="Telefone" value="@negocio.Telefone" class="campo" data-mascara="telefone" inputmode="tel" />
+                    </div>
+                </div>
+                <label class="flex items-start gap-3 rounded-xl bg-slate-50 p-3 text-sm">
+                    <input type="checkbox" name="PermitirEstoqueNegativo" value="true" @(negocio.PermitirEstoqueNegativo ? "checked" : "") class="mt-0.5 h-5 w-5 rounded border-slate-300 text-marca-600 focus:ring-marca-500" />
+                    <input type="hidden" name="PermitirEstoqueNegativo" value="false" />
+                    <span><b>Permitir vender sem estoque</b><br /><span class="text-slate-500">Se desmarcar, a venda é bloqueada quando o estoque não é suficiente. Marcado, só mostra um aviso.</span></span>
+                </label>
+                <button class="btn-primario">Salvar negócio</button>
+            </form>
+        </section>
+    }
+
+    @* Meu perfil *@
+    <section class="card-p" id="perfil">
+        <h2 class="flex items-center gap-2 font-bold">@Icone.Svg("usuario", "w-5 h-5 text-marca-600") Meu perfil</h2>
+        <form method="post" asp-antiforgery="true" action="/configuracoes/perfil" class="mt-4 space-y-4">
+            <div><label class="rotulo" for="perfil-nome">Nome</label><input id="perfil-nome" name="Nome" value="@perfil.Nome" class="campo" required /></div>
+            <div><label class="rotulo" for="perfil-email">E-mail</label><input id="perfil-email" type="email" name="Email" value="@perfil.Email" class="campo" required /></div>
+            <div><label class="rotulo" for="perfil-tel">WhatsApp</label><input id="perfil-tel" name="Telefone" value="@perfil.Telefone" class="campo" data-mascara="telefone" inputmode="tel" /></div>
+            <button class="btn-primario">Salvar perfil</button>
+        </form>
+    </section>
+
+    @* Troca de senha *@
+    <section class="card-p" id="senha">
+        <h2 class="flex items-center gap-2 font-bold">@Icone.Svg("cadeado", "w-5 h-5 text-marca-600") Trocar senha</h2>
+        <form method="post" asp-antiforgery="true" action="/configuracoes/senha" class="mt-4 space-y-4">
+            <div><label class="rotulo" for="SenhaAtual">Senha atual</label><input id="SenhaAtual" type="password" name="SenhaAtual" class="campo" autocomplete="current-password" required /></div>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div><label class="rotulo" for="NovaSenha">Nova senha</label><input id="NovaSenha" type="password" name="NovaSenha" class="campo" autocomplete="new-password" required minlength="8" /></div>
+                <div><label class="rotulo" for="ConfirmarSenha">Confirme</label><input id="ConfirmarSenha" type="password" name="ConfirmarSenha" class="campo" autocomplete="new-password" required /></div>
+            </div>
+            <button class="btn-primario">Trocar senha</button>
+        </form>
+    </section>
+
+    @if (dono && usuarios is not null)
+    {
+        @* Usuários *@
+        <section class="card-p" id="usuarios">
+            <h2 class="flex items-center gap-2 font-bold">@Icone.Svg("usuarios", "w-5 h-5 text-marca-600") Usuários</h2>
+            <p class="text-sm text-slate-500">Seu plano permite até @(empresa.TemRecursosPro ? 3 : 1) @(empresa.TemRecursosPro ? "usuários" : "usuário"). Vendedores registram vendas, mas não veem lucro nem custo.</p>
+            <ul class="mt-3 divide-y divide-slate-100">
+                @foreach (var u in usuarios)
+                {
+                    <li class="flex items-center gap-3 py-2.5">
+                        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-600">@Exibir.Iniciais(u.Nome)</span>
+                        <div class="min-w-0 flex-1">
+                            <p class="truncate text-sm font-semibold @(u.Ativo ? "" : "text-slate-400 line-through")">@u.Nome <span class="@(u.Perfil == PerfilUsuario.DONO ? "chip-marca" : "chip-cinza") ml-1">@(u.Perfil == PerfilUsuario.DONO ? "Dono" : "Vendedor")</span></p>
+                            <p class="truncate text-xs text-slate-500">@u.Email · @(u.UltimoAcesso is null ? "nunca entrou" : "último acesso " + Exibir.Data(u.UltimoAcesso.Value))</p>
+                        </div>
+                        @if (u.Perfil == PerfilUsuario.VENDEDOR)
+                        {
+                            <form method="post" asp-antiforgery="true" action="/configuracoes/usuarios/@u.Id/ativo">
+                                <input type="hidden" name="ativo" value="@(u.Ativo ? "false" : "true")" />
+                                <button class="btn-sm btn text-slate-500 hover:bg-slate-100">@(u.Ativo ? "Desativar" : "Reativar")</button>
+                            </form>
+                        }
+                    </li>
+                }
+            </ul>
+            <form method="post" asp-antiforgery="true" action="/configuracoes/usuarios/convidar" class="mt-3 grid gap-2 rounded-xl bg-slate-50 p-3 sm:grid-cols-[1fr_1fr_auto]">
+                <input name="Nome" class="campo" placeholder="Nome do vendedor" required aria-label="Nome do vendedor" />
+                <input name="Email" type="email" class="campo" placeholder="E-mail" required aria-label="E-mail do vendedor" />
+                <button class="btn-primario">Convidar</button>
+            </form>
+        </section>
+
+        @* Excluir conta (LGPD) *@
+        <section class="card-p border-rose-200 lg:col-span-2" id="excluir">
+            <h2 class="flex items-center gap-2 font-bold text-rose-700">@Icone.Svg("lixo", "w-5 h-5") Excluir conta</h2>
+            <p class="mt-1 text-sm text-slate-600">Apaga o negócio, os usuários, produtos, clientes, vendas e parcelas. Não dá para desfazer.</p>
+            <form method="post" asp-antiforgery="true" action="/configuracoes/excluir-conta" class="mt-3 grid gap-2 sm:grid-cols-[1fr_1fr_auto]" data-confirmar="Tem certeza? Todos os dados serão apagados para sempre.">
+                <input name="senha" type="password" class="campo" placeholder="Sua senha" required autocomplete="current-password" aria-label="Sua senha" />
+                <input name="confirmacao" class="campo" placeholder="Digite EXCLUIR" required aria-label="Digite EXCLUIR para confirmar" />
+                <button class="btn-perigo">Excluir conta e dados</button>
+            </form>
+        </section>
+    }
+</div>
+
+<form method="post" asp-antiforgery="true" action="/logout" class="mt-6 lg:hidden">
+    <button class="btn-secundario w-full">@Icone.Svg("sair", "w-4 h-4") Sair</button>
+</form>

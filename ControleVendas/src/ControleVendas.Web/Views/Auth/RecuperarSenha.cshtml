@@ -1,0 +1,26 @@
+@model EsqueciSenhaDto
+@{
+    Layout = "_LayoutAuth";
+    ViewData["Title"] = "Recuperar senha";
+}
+<h1 class="text-2xl font-extrabold text-slate-900">Recuperar senha</h1>
+@if (ViewBag.Enviado == true)
+{
+    <div class="mt-5 rounded-xl bg-emerald-50 p-4 text-sm text-emerald-800">
+        Se existir uma conta com <b>@Model.Email</b>, enviamos um link para criar uma nova senha. Ele vale por 1 hora — confira também a caixa de spam.
+    </div>
+    <a href="/login" class="btn-secundario mt-5 w-full">Voltar para o login</a>
+}
+else
+{
+    <p class="mt-1 text-sm text-slate-500">Informe seu e-mail e enviaremos um link (válido por 1 hora) para criar uma senha nova.</p>
+    <form method="post" asp-antiforgery="true" action="/recuperar-senha" class="mt-6 space-y-4" novalidate>
+        <div>
+            <label asp-for="Email" class="rotulo">E-mail</label>
+            <input asp-for="Email" type="email" class="campo" autocomplete="email" inputmode="email" autofocus />
+            <span asp-validation-for="Email" class="erro-campo"></span>
+        </div>
+        <button type="submit" class="btn-primario btn-lg w-full">Enviar link</button>
+    </form>
+    <p class="mt-5 text-center text-sm"><a href="/login" class="font-semibold text-marca-700">Voltar para o login</a></p>
+}

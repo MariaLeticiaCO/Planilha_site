@@ -1,0 +1,10 @@
+@{
+    Layout = "_LayoutAuth";
+    ViewData["Title"] = "Sem internet";
+}
+<div class="text-center">
+    <span class="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-700">@Icone.Svg("alerta", "w-6 h-6")</span>
+    <h1 class="text-xl font-bold">Você está sem internet</h1>
+    <p class="mt-2 text-slate-600">Assim que a conexão voltar, é só tocar no botão abaixo.</p>
+    <button onclick="location.reload()" class="btn-primario mt-5 w-full">Tentar de novo</button>
+</div>

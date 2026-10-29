@@ -1,0 +1,137 @@
+@model ProdutoDto
+@{
+    var novo = Model.Id == 0;
+    ViewData["Title"] = novo ? "Novo produto" : "Editar produto";
+    var categorias = (IReadOnlyList<CategoriaDto>)ViewBag.Categorias;
+}
+<div class="flex items-center gap-3">
+    <a href="/produtos" class="rounded-xl p-2 text-slate-500 hover:bg-slate-100" aria-label="Voltar">@Icone.Svg("esquerda")</a>
+    <h1 class="titulo-pagina">@ViewData["Title"]</h1>
+</div>
+
+<form method="post" asp-antiforgery="true" action="@(novo ? "/produtos/novo" : $"/produtos/{Model.Id}/editar")" enctype="multipart/form-data" class="mt-4 grid gap-4 lg:grid-cols-3" novalidate>
+    <div class="card-p space-y-4 lg:col-span-2">
+        <div asp-validation-summary="ModelOnly"></div>
+        <div class="flex items-start gap-4">
+            <label class="group relative shrink-0 cursor-pointer" title="Foto do produto">
+                <img id="foto-preview" src="@(Model.FotoUrl ?? "")" alt="" class="@(Model.FotoUrl is null ? "oculto" : "") h-24 w-24 rounded-2xl object-cover" />
+                <span id="foto-vazia" class="@(Model.FotoUrl is null ? "" : "oculto") flex h-24 w-24 flex-col items-center justify-center gap-1 rounded-2xl border-2 border-dashed border-slate-300 text-xs text-slate-500 group-hover:border-marca-400">@Icone.Svg("imagem", "w-6 h-6") Foto</span>
+                <input type="file" name="foto" accept="image/jpeg,image/png,image/webp" class="sr-only" id="foto" />
+            </label>
+            <div class="flex-1 space-y-4">
+                <div>
+                    <label asp-for="Nome" class="rotulo">Nome</label>
+                    <input asp-for="Nome" class="campo" autofocus="@novo" />
+                    <span asp-validation-for="Nome" class="erro-campo"></span>
+                </div>
+            </div>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+                <label asp-for="CategoriaId" class="rotulo">Categoria</label>
+                <select asp-for="CategoriaId" class="campo">
+                    <option value="">Sem categoria</option>
+                    @foreach (var c in categorias) { <option value="@c.Id">@c.Nome</option> }
+                </select>
+                <a href="/categorias" class="dica inline-block hover:text-marca-700">Gerenciar categorias</a>
+            </div>
+            <div>
+                <label asp-for="Codigo" class="rotulo">Código <span class="font-normal text-slate-400">(opcional)</span></label>
+                <input asp-for="Codigo" class="campo" placeholder="SKU ou código de barras" />
+                <span asp-validation-for="Codigo" class="erro-campo"></span>
+            </div>
+            <div>
+                <label asp-for="Custo" class="rotulo">Custo (R$)</label>
+                <input asp-for="Custo" type="text" class="campo" inputmode="numeric" data-mascara="dinheiro" />
+                <span asp-validation-for="Custo" class="erro-campo"></span>
+                <p class="dica">Quanto você paga para ter uma unidade.</p>
+            </div>
+            <div>
+                <label asp-for="PrecoVenda" class="rotulo">Preço de venda (R$)</label>
+                <input asp-for="PrecoVenda" type="text" class="campo" inputmode="numeric" data-mascara="dinheiro" />
+                <span asp-validation-for="PrecoVenda" class="erro-campo"></span>
+            </div>
+            <div>
+                <label asp-for="Estoque" class="rotulo">Estoque</label>
+                <input asp-for="Estoque" type="number" class="campo" inputmode="numeric" />
+                <span asp-validation-for="Estoque" class="erro-campo"></span>
+            </div>
+            <div>
+                <label asp-for="EstoqueMinimo" class="rotulo">Estoque mínimo</label>
+                <input asp-for="EstoqueMinimo" type="number" min="0" class="campo" inputmode="numeric" />
+                <span asp-validation-for="EstoqueMinimo" class="erro-campo"></span>
+                <p class="dica">Avisamos no painel quando chegar nesse número.</p>
+            </div>
+        </div>
+    </div>
+
+    @* Calculadora ao lado *@
+    <aside class="space-y-4">
+        <div class="card-p">
+            <h2 class="flex items-center gap-2 font-bold">@Icone.Svg("porcentagem", "w-4 h-4") Calculadora</h2>
+            <dl class="mt-3 space-y-2 text-sm">
+                <div class="flex items-center justify-between"><dt class="text-slate-500">Margem</dt><dd id="calc-margem" class="chip-cinza">—</dd></div>
+                <div class="flex items-center justify-between"><dt class="text-slate-500">Lucro por unidade</dt><dd id="calc-lucro" class="font-bold">—</dd></div>
+            </dl>
+            <div class="mt-4 rounded-xl bg-slate-50 p-3">
+                <label for="margem-desejada" class="rotulo">Margem desejada</label>
+                <div class="flex items-center gap-2">
+                    <div class="relative w-24">
+                        <input id="margem-desejada" type="text" inputmode="decimal" value="40" class="campo pr-7 text-right" />
+                        <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-400">%</span>
+                    </div>
+                    <span class="text-sm text-slate-500">→</span>
+                    <button type="button" id="calc-sugerido" class="btn-suave btn-sm flex-1" title="Usar este preço">—</button>
+                </div>
+                <p class="dica">Preço sugerido. Toque para usar.</p>
+            </div>
+            <p class="mt-3 text-xs text-slate-500">Verde acima de 30%, amarelo de 15% a 30%, vermelho abaixo de 15%.</p>
+        </div>
+        <button type="submit" class="btn-primario btn-lg w-full">Salvar produto</button>
+    </aside>
+</form>
+
+@if (!novo)
+{
+    <form method="post" asp-antiforgery="true" action="/produtos/@Model.Id/excluir" class="mt-4 text-center lg:text-left" data-confirmar="Excluir este produto? Se ele já tiver vendas, será apenas desativado.">
+        <button class="text-sm font-semibold text-rose-600 hover:underline">@Icone.Svg("lixo", "w-4 h-4 inline -mt-0.5") Excluir produto</button>
+    </form>
+}
+
+@section Scripts {
+<partial name="_ValidationScriptsPartial" />
+<script>
+$(function () {
+  function calcular() {
+    const custo = App.lerNumero($('#Custo').val());
+    const preco = App.lerNumero($('#PrecoVenda').val());
+    if (preco > 0) {
+      const m = (preco - custo) / preco * 100;
+      $('#calc-margem').attr('class', m > 30 ? 'chip-verde' : m >= 15 ? 'chip-amarelo' : 'chip-vermelho').text(App.numero(m, 1) + '%');
+      $('#calc-lucro').text(App.moeda(preco - custo)).toggleClass('text-rose-600', preco < custo);
+    } else {
+      $('#calc-margem').attr('class', 'chip-cinza').text('—');
+      $('#calc-lucro').text('—');
+    }
+    const desejada = App.lerNumero($('#margem-desejada').val());
+    $('#calc-sugerido').text(custo > 0 && desejada < 100 ? App.moeda(custo / (1 - desejada / 100)) : '—');
+  }
+  $('#Custo, #PrecoVenda, #margem-desejada').on('input', calcular);
+  $('#calc-sugerido').on('click', function () {
+    const custo = App.lerNumero($('#Custo').val());
+    const desejada = App.lerNumero($('#margem-desejada').val());
+    if (!(custo > 0) || desejada >= 100) return;
+    const preco = Math.round(custo / (1 - desejada / 100) * 100) / 100;
+    $('#PrecoVenda').val(App.numero(preco)).trigger('input');
+  });
+  $('#foto').on('change', function () {
+    const f = this.files[0];
+    if (!f) return;
+    if (f.size > 3 * 1024 * 1024) { App.toast('A imagem pode ter no máximo 3 MB.', 'erro'); this.value = ''; return; }
+    $('#foto-preview').attr('src', URL.createObjectURL(f)).removeClass('oculto');
+    $('#foto-vazia').addClass('oculto');
+  });
+  calcular();
+});
+</script>
+}

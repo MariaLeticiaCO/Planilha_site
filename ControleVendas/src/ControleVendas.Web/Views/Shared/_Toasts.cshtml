@@ -1,0 +1,18 @@
+@{
+    var sucesso = TempData["Sucesso"] as string;
+    var erro = TempData["Erro"] as string;
+}
+<div id="toasts" class="fixed inset-x-0 top-3 z-[70] flex flex-col items-center gap-2 px-4 pointer-events-none">
+    @if (!string.IsNullOrEmpty(sucesso))
+    {
+        <div class="toast pointer-events-auto flex w-full max-w-md items-start gap-3 rounded-2xl bg-slate-900 px-4 py-3 text-sm text-white shadow-lg" role="status">
+            <span class="text-emerald-400">@Icone.Svg("check-circulo")</span><span class="flex-1">@sucesso</span>
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(erro))
+    {
+        <div class="toast pointer-events-auto flex w-full max-w-md items-start gap-3 rounded-2xl bg-rose-600 px-4 py-3 text-sm text-white shadow-lg" role="alert">
+            <span>@Icone.Svg("alerta")</span><span class="flex-1">@erro</span>
+        </div>
+    }
+</div>

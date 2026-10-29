@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <partial name="_Head" />
+    <title>@(ViewData["Title"] is string t ? t + " · " : "")Controle de Vendas</title>
+    @await RenderSectionAsync("Head", required: false)
+</head>
+<body class="min-h-screen flex flex-col">
+    <partial name="_Toasts" />
+    <header class="sticky top-0 z-40 border-b border-slate-200/70 bg-white/85 backdrop-blur">
+        <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+            <a href="/" aria-label="Início"><partial name="_Logo" /></a>
+            <nav class="flex items-center gap-2">
+                <a href="/login" class="btn-secundario btn-sm sm:btn">Entrar</a>
+                <a href="/cadastro" class="btn-primario btn-sm sm:btn hidden min-[380px]:inline-flex">Testar grátis</a>
+            </nav>
+        </div>
+    </header>
+    <main class="flex-1">
+        @RenderBody()
+    </main>
+    <footer class="border-t border-slate-200 bg-white">
+        <div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 py-6 text-sm text-slate-500 sm:flex-row sm:px-6">
+            <span>© @DateTime.Now.Year Controle de Vendas</span>
+            <span class="flex gap-4">
+                <a href="/termos" class="hover:text-marca-700">Termos de uso</a>
+                <a href="/privacidade" class="hover:text-marca-700">Privacidade</a>
+            </span>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -18,6 +18,6 @@ Landing page da planilha **Estudo na Rotina** (organização de estudos para rot
 
 Depois do deploy, a página fica em `https://planilhasite.vercel.app/estudos`.
 
-## SaaS Controle de Vendas — `ControleVendas/`
+## SaaS Controle de Vendas — `saas-vendas/`
 
-Sistema completo (ASP.NET Core 8 MVC + SQL Server) para o pequeno empreendedor ver o lucro real das vendas, com PDV, crediário, estoque e relatórios — funciona no computador e no celular (PWA). Veja `ControleVendas/README.md`. Não é publicado na Vercel (está no `.vercelignore`); hospede no Azure App Service ou em uma VPS.
+Sistema completo em **Next.js + React + Tailwind**, com o banco **SQL Server** do documento do projeto, para o pequeno empreendedor ver o lucro real das vendas: PDV, crediário, estoque e relatórios — no computador e no celular (PWA). Veja `saas-vendas/README.md` para publicar na Vercel (crie um projeto separado com **Root Directory = `saas-vendas`**). A pasta fica fora do deploy desta página de vendas (`.vercelignore`).

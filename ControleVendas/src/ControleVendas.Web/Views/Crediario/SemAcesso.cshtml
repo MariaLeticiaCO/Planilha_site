@@ -1,7 +1,0 @@
-@{ ViewData["Title"] = "Crediário"; }
-<div class="card mx-auto mt-6 max-w-lg p-6 text-center sm:p-8">
-    <span class="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-marca-100 text-marca-700">@Icone.Svg("crediario", "w-7 h-7")</span>
-    <h1 class="mt-4 text-xl font-extrabold">Crediário é do plano Pro</h1>
-    <p class="mt-2 text-slate-600">Venda no fiado com parcelas automáticas, saiba quem está atrasado e cobre pelo WhatsApp com a mensagem pronta.</p>
-    @if (User.IsInRole("DONO")) { <a href="/assinatura" class="btn-primario btn-lg mt-6 w-full">Conhecer o Pro — @Exibir.Moeda(Planos.ProMensal.Preco)/mês</a> }
-</div>

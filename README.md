@@ -17,3 +17,7 @@ Landing page da planilha **Estudo na Rotina** (organização de estudos para rot
 - Link do checkout: edite a variável `CHECKOUT` no fim de `estudos/index.html`
 
 Depois do deploy, a página fica em `https://planilhasite.vercel.app/estudos`.
+
+## SaaS Controle de Vendas — `saas-vendas/`
+
+Sistema em **Next.js + React + Tailwind** com banco **SQL Server**, para o pequeno empreendedor ver o lucro real das vendas: PDV, crediário, estoque e relatórios — no computador e no celular (PWA). Para publicar, crie na Vercel um projeto separado com **Root Directory = `saas-vendas`**; o passo a passo está em `saas-vendas/README.md`.

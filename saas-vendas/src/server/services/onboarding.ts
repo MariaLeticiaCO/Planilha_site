@@ -1,5 +1,6 @@
 import 'server-only';
 import { db, inserir } from '../db/conexao';
+import { prepararBanco } from '../db/preparar';
 import { agora } from '@/domain/datas';
 import { RegraNegocioError, type TipoPagamento } from '@/domain/tipos';
 import type { z } from 'zod';
@@ -19,6 +20,7 @@ export const FORMAS_PADRAO: { tipo: TipoPagamento; nome: string }[] = [
 ];
 
 export async function listarSetores(): Promise<Setor[]> {
+  await prepararBanco();
   const linhas = await db().selectFrom('Setor').selectAll().orderBy('Ordem').execute();
   return linhas.map(s => ({ id: s.Id, nome: s.Nome, icone: s.Icone, categoriasSugeridas: s.CategoriasSugeridas.split(';').map(x => x.trim()).filter(Boolean) }));
 }

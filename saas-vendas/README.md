@@ -11,8 +11,8 @@ A Vercel não hospeda SQL Server, então o banco fica num serviço gerenciado. O
 
 1. No portal do Azure, crie um **Banco de Dados SQL** chamado `ControleVendas` (autenticação SQL, com usuário e senha).
 2. Em **Rede/Firewall** do servidor, permita o acesso público e libere os IPs de `0.0.0.0` a `255.255.255.255` (a Vercel não tem IP fixo; o acesso continua protegido por usuário/senha e criptografia).
-3. Abra o **Editor de consultas** do banco (ou o SSMS) e rode o arquivo `database/controle_vendas_schema.sql` inteiro.
-4. Copie a **connection string ADO.NET** (menu *Cadeias de conexão*) e troque `{your_password}` pela senha.
+3. Copie a **connection string ADO.NET** (menu *Cadeias de conexão*) e troque `{your_password}` pela senha. A senha não pode ter `;`.
+4. **Não precisa rodar o script à mão:** no primeiro acesso a um banco vazio, o app cria sozinho as tabelas, a view, as procedures e os setores (`database/controle_vendas_schema.sql`). Se preferir rodar você mesmo (SSMS ou extensão *mssql* do VS Code — o editor de consultas do portal do Azure não aceita `GO`), defina `CRIAR_BANCO_AUTOMATICAMENTE=false`.
 
 ### 2. Projeto na Vercel
 1. Em vercel.com → **Add New → Project**, importe o repositório.

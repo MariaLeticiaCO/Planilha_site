@@ -1,6 +1,7 @@
 import 'server-only';
 import { cache } from 'react';
 import { db, bool, num } from './db/conexao';
+import { prepararBanco } from './db/preparar';
 import { agora, lerData } from '@/domain/datas';
 import { assinaturaAtiva, diasRestantesTrial, limiteProdutos, limiteUsuarios, temRecursosPro } from '@/domain/planos';
 import type { Plano, StatusAssinatura } from '@/domain/tipos';
@@ -29,6 +30,7 @@ export interface EmpresaContexto {
 
 /** Empresa da sessão, lida uma vez por requisição. */
 export const obterEmpresa = cache(async (empresaId: number): Promise<EmpresaContexto> => {
+  await prepararBanco();
   const e = await db().selectFrom('Empresa').selectAll().where('Id', '=', empresaId).executeTakeFirst();
   if (!e) throw new NaoEncontradoError('Empresa');
   const estado = {

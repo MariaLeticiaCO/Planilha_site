@@ -1,5 +1,6 @@
 import 'server-only';
 import { db } from '../db/conexao';
+import { prepararBanco } from '../db/preparar';
 import { agora, hoje, lerData, somarDias, somarMeses } from '@/domain/datas';
 import { soDigitos } from '@/domain/formatos';
 import { assinaturaAtiva, DIAS_TOLERANCIA, obterPlano, type OpcaoPlano } from '@/domain/planos';
@@ -83,6 +84,7 @@ export interface EventoWebhook {
 
 /** Webhook do gateway: atualiza Plano e StatusAssinatura. */
 export async function processarWebhook(evento: EventoWebhook) {
+  await prepararBanco();
   const ref = lerReferencia(evento.payment?.externalReference ?? evento.subscription?.externalReference);
   if (!ref) return;
   const linha = await db().selectFrom('Empresa').selectAll().where('Id', '=', ref.empresaId).executeTakeFirst();

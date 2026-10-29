@@ -1,5 +1,5 @@
 import 'server-only';
-import { db, bool, bit, inserir, num } from '../db/conexao';
+import { db, bool, bit, contem, inserir, num } from '../db/conexao';
 import { agora, lerData } from '@/domain/datas';
 import { soDigitos } from '@/domain/formatos';
 import { NaoEncontradoError, RegraNegocioError, type TipoPagamento } from '@/domain/tipos';
@@ -22,7 +22,7 @@ export async function listarProdutos(s: Sessao, filtro: { busca?: string; catego
     .where('p.EmpresaId', '=', s.empresaId);
   if (filtro.busca?.trim()) {
     const b = `%${filtro.busca.trim()}%`;
-    q = q.where(eb => eb.or([eb('p.Nome', 'like', b), eb('p.Codigo', 'like', b)]));
+    q = q.where(eb => eb.or([eb('p.Nome', contem(), b), eb('p.Codigo', contem(), b)]));
   }
   if (filtro.categoriaId) q = q.where('p.CategoriaId', '=', filtro.categoriaId);
   if (filtro.status === 'inativos') q = q.where('p.Ativo', '=', 0);
@@ -104,7 +104,7 @@ export async function buscarProdutosVenda(s: Sessao, termo: string | null, limit
     .where('EmpresaId', '=', s.empresaId).where('Ativo', '=', 1);
   if (termo?.trim()) {
     const t = termo.trim();
-    q = q.where(eb => eb.or([eb('Nome', 'like', `%${t}%`), eb('Codigo', '=', t)]));
+    q = q.where(eb => eb.or([eb('Nome', contem(), `%${t}%`), eb('Codigo', '=', t)]));
   }
   const linhas = await q.orderBy('Nome').offset(0).limit(limite).execute();
   return linhas.map(p => ({
@@ -207,7 +207,7 @@ export async function listarClientes(s: Sessao, busca?: string): Promise<Cliente
   if (busca?.trim()) {
     const b = busca.trim();
     const d = soDigitos(b);
-    q = q.where(eb => eb.or([eb('Nome', 'like', `%${b}%`), ...(d ? [eb('Telefone', 'like', `%${d}%`)] : [])]));
+    q = q.where(eb => eb.or([eb('Nome', contem(), `%${b}%`), ...(d ? [eb('Telefone', 'like', `%${d}%`)] : [])]));
   }
   const clientes = await q.orderBy('Nome').offset(0).limit(500).execute();
   const devidos = await db().selectFrom('vw_ParcelasCrediario').select(['ClienteId', 'Valor', 'Situacao'])

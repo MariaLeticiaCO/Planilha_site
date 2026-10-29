@@ -2,49 +2,52 @@
 
 Sistema web (instalável no celular como PWA) que mostra ao pequeno empreendedor quanto ele **lucrou de verdade** no dia, na semana, no mês e no ano — descontando o custo do produto e a taxa da forma de pagamento.
 
-**Stack:** Next.js 15 (App Router) + React 19 + Tailwind CSS + TypeScript, rodando na **Vercel**, com o **mesmo banco SQL Server** do documento do projeto (`database/controle_vendas_schema.sql`: 10 tabelas, 1 view, 4 procedures).
+**Stack:** Next.js 15 (App Router) + React 19 + Tailwind CSS + TypeScript, rodando na **Vercel**, com banco **PostgreSQL (Neon)** criado dentro da própria Vercel. As tabelas, a view e as regras são as do documento do projeto (`database/postgres_schema.sql`). O script original para SQL Server continua em `database/controle_vendas_schema.sql` e o app também funciona com ele.
 
 ## Colocar no ar na Vercel (passo a passo)
 
-### 1. Banco SQL Server na nuvem
-A Vercel não hospeda SQL Server, então o banco fica num serviço gerenciado. O mais simples é o **Azure SQL Database** (tem oferta gratuita):
-
-1. No portal do Azure, crie um **Banco de Dados SQL** chamado `ControleVendas` (autenticação SQL, com usuário e senha).
-2. Em **Rede/Firewall** do servidor, permita o acesso público e libere os IPs de `0.0.0.0` a `255.255.255.255` (a Vercel não tem IP fixo; o acesso continua protegido por usuário/senha e criptografia).
-3. Copie a **connection string ADO.NET** (menu *Cadeias de conexão*) e troque `{your_password}` pela senha. A senha não pode ter `;`.
-4. **Não precisa rodar o script à mão:** no primeiro acesso a um banco vazio, o app cria sozinho as tabelas, a view, as procedures e os setores (`database/controle_vendas_schema.sql`). Se preferir rodar você mesmo (SSMS ou extensão *mssql* do VS Code — o editor de consultas do portal do Azure não aceita `GO`), defina `CRIAR_BANCO_AUTOMATICAMENTE=false`.
-
-### 2. Projeto na Vercel
+### 1. Projeto
 1. Em vercel.com → **Add New → Project**, importe o repositório.
    - Se o app estiver na pasta `saas-vendas/` de outro repositório, em **Root Directory** escolha `saas-vendas`. Não liste `saas-vendas/` num `.vercelignore` na raiz do repositório: a Vercel aplica esse arquivo a todos os projetos e apagaria o app antes do build.
-2. Framework: **Next.js** (detectado sozinho). Não precisa mudar build nem output.
-3. Em **Environment Variables**, cadastre:
+2. Framework: **Next.js** (detectado sozinho).
+
+### 2. Banco de dados (Neon, dentro da Vercel)
+1. No projeto, abra a aba **Storage → Create Database → Neon** (Serverless Postgres) e escolha o plano gratuito e a região mais próxima (ex.: São Paulo, se houver; senão Washington).
+2. Conecte o banco ao projeto, marcando os ambientes **Production** e **Preview**. A Vercel cria sozinha a variável `DATABASE_URL`.
+3. **Não precisa rodar script:** no primeiro acesso, o app cria as tabelas, a view e os setores no banco vazio.
+
+### 3. Variáveis de ambiente
+Em **Settings → Environment Variables**:
 
 | Variável | Valor |
 |---|---|
-| `DATABASE_PROVIDER` | `mssql` |
-| `SQLSERVER_CONNECTION_STRING` | a connection string do passo 1 |
-| `SESSION_SECRET` | um texto aleatório de 32+ caracteres (`openssl rand -base64 48`) |
-| `ASAAS_API_KEY` | chave da API do Asaas (sem ela, a cobrança fica simulada) |
-| `ASAAS_URL` | `https://api.asaas.com/v3` (produção) ou `https://api-sandbox.asaas.com/v3` |
-| `ASAAS_WEBHOOK_TOKEN` | o mesmo token que você definir no webhook do Asaas |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` | e-mail (Brevo ou SendGrid), para recuperação de senha e convites |
+| `SESSION_SECRET` | texto aleatório com 32+ caracteres (obrigatório) |
+| `ASAAS_API_KEY`, `ASAAS_URL`, `ASAAS_WEBHOOK_TOKEN` | pagamento da assinatura (opcional; sem chave, a cobrança fica simulada) |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` | e-mail de recuperação de senha e convites (opcional) |
 
-4. Em **Storage → Create → Blob**, crie um Blob store e conecte ao projeto (cria `BLOB_READ_WRITE_TOKEN` sozinho). É onde ficam as fotos dos produtos e logos — o disco da Vercel é temporário.
-5. **Deploy.** Pronto: abra a URL, clique em *Testar grátis 7 dias*.
+`DATABASE_PROVIDER` não é necessária: com `DATABASE_URL` o app usa o PostgreSQL. Se ela existir com `mssql` e não houver SQL Server configurado, o app usa o Neon mesmo assim.
 
-### 3. Webhook do Asaas
+### 4. Fotos (Vercel Blob)
+Em **Storage → Create → Blob**, crie um Blob store e conecte ao projeto (cria `BLOB_READ_WRITE_TOKEN`). O disco da Vercel é temporário, então as fotos dos produtos e logos ficam lá.
+
+### 5. Deploy
+Clique em **Redeploy** (variáveis novas só valem em um deploy novo) e abra o site → *Testar grátis 7 dias*.
+
+### Webhook do Asaas
 No painel do Asaas → Integrações → Webhooks, aponte para `https://SEU-DOMINIO/webhook/pagamento`, com os eventos de cobrança e de assinatura, e o token igual ao `ASAAS_WEBHOOK_TOKEN`.
+
+### Usar SQL Server em vez do Neon
+Defina `SQLSERVER_CONNECTION_STRING` (formato ADO.NET) e `DATABASE_PROVIDER=mssql`. Os números do dashboard passam a vir das procedures `sp_Dashboard_*`, e o app também cria a estrutura sozinho no banco vazio.
 
 ## Rodar no seu computador
 
 ```bash
 npm install
-cp .env.example .env.local   # preencha a connection string do seu SQL Server
+cp .env.example .env.local   # coloque a DATABASE_URL de um PostgreSQL (pode ser a do Neon)
 npm run dev                   # http://localhost:3000
 ```
 
-**Sem SQL Server?** Use o modo demonstração com SQLite (só para testar; em produção é sempre SQL Server):
+**Sem banco nenhum?** Use o modo demonstração com SQLite (só para testar):
 
 ```bash
 echo "DATABASE_PROVIDER=sqlite" > .env.local
@@ -63,12 +66,13 @@ npm run typecheck
 ```
 saas-vendas/
 ├── database/
-│   ├── controle_vendas_schema.sql   o banco do documento (SQL Server) — o mesmo da versão .NET
+│   ├── postgres_schema.sql          o banco em PostgreSQL (Neon) — usado na Vercel
+│   ├── controle_vendas_schema.sql   o banco do documento em SQL Server (mesmas tabelas)
 │   └── sqlite_demo.sql              cópia em SQLite, só para o modo demonstração
 ├── src/
 │   ├── domain/        regras puras: CalculadoraLucro, GeradorParcelas, datas, planos, validação (zod)
 │   ├── server/
-│   │   ├── db/        conexão (Kysely: SQL Server em produção), tipos das tabelas, procedures do dashboard
+│   │   ├── db/        conexão (Kysely: PostgreSQL, SQL Server ou SQLite), criação automática do banco, consultas do dashboard
 │   │   ├── services/  auth, onboarding, cadastros, vendas, crediário, painel, relatórios, configurações, assinatura
 │   │   ├── infra/     Asaas, e-mail, armazenamento de imagens, PDF (PDFKit) e Excel (ExcelJS)
 │   │   ├── sessao.ts  cookie HttpOnly com JWT, 7 dias com renovação
@@ -79,10 +83,11 @@ saas-vendas/
 └── tests/             vitest
 ```
 
-### Compatível com o banco da versão .NET
-- As tabelas, a view `vw_ParcelasCrediario` e as procedures `sp_Dashboard_*` são exatamente as do `controle_vendas_schema.sql`.
-- O hash de senha usa o mesmo formato do `PasswordHasher` do ASP.NET Core: usuários criados por uma versão entram pela outra.
-- Datas gravadas na hora de Brasília, como antes.
+### Banco
+- PostgreSQL, SQL Server e SQLite têm as mesmas tabelas, colunas calculadas (margem, valor líquido, lucro) e a view `vw_ParcelasCrediario`.
+- Se editar um `.sql` de `database/`, rode `python3 scripts/embutir-schemas.py` (o app usa uma cópia embutida para criar o banco; um teste confere que estão iguais).
+- O hash de senha usa o formato do `PasswordHasher` do ASP.NET Core.
+- Datas gravadas na hora de Brasília.
 
 ## Mapa do documento
 

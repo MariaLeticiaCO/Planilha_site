@@ -16,7 +16,7 @@ A Vercel não hospeda SQL Server, então o banco fica num serviço gerenciado. O
 
 ### 2. Projeto na Vercel
 1. Em vercel.com → **Add New → Project**, importe o repositório.
-   - Se o app estiver na pasta `saas-vendas/` de outro repositório, em **Root Directory** escolha `saas-vendas`.
+   - Se o app estiver na pasta `saas-vendas/` de outro repositório, em **Root Directory** escolha `saas-vendas`. Não liste `saas-vendas/` num `.vercelignore` na raiz do repositório: a Vercel aplica esse arquivo a todos os projetos e apagaria o app antes do build.
 2. Framework: **Next.js** (detectado sozinho). Não precisa mudar build nem output.
 3. Em **Environment Variables**, cadastre:
 

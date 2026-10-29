@@ -1,7 +1,1 @@
-{
-  "cleanUrls": true,
-  "redirects": [
-    { "source": "/saas-vendas", "destination": "/", "permanent": false },
-    { "source": "/saas-vendas/:caminho*", "destination": "/", "permanent": false }
-  ]
-}
+{ "cleanUrls": true }
